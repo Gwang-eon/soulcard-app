@@ -500,6 +500,10 @@
                         준비 완료! 총 ${data.stats.totalCards}장의 카드 (완성률: ${data.stats.completionRate})
                     `;
                     isInitialized = true;
+                    // 초기화 완료 시 더 이상 상태 체크하지 않음
+                    if (window.statusCheckInterval) {
+                        clearInterval(window.statusCheckInterval);
+                    }
                 } else {
                     statusBar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 데이터 로딩 중...';
                 }
@@ -1133,7 +1137,8 @@
 
         // 페이지 로드 시 상태 확인
         checkStatus();
-        setInterval(checkStatus, 5000); // 5초마다 상태 확인
+        // 초기화 완료까지만 2초마다 상태 확인
+        window.statusCheckInterval = setInterval(checkStatus, 2000);
     </script>
 </body>
 </html>

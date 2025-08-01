@@ -12,9 +12,14 @@ export default function handler(req, res) {
   if (req.method === 'GET') {
     res.status(200).json({
       status: 'online',
+      initialized: true,
       message: '🔮 AI 타로 서버가 정상적으로 작동 중입니다.',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      stats: {
+        totalCards: 78,
+        completionRate: '100%'
+      }
     });
   } else {
     res.status(405).json({ error: 'Method not allowed' });
