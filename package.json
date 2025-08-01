@@ -1,0 +1,71 @@
+{
+  "name": "soulcard-app",
+  "version": "1.0.0",
+  "description": "SoulCard - AI 영혼 타로카드 서비스",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "demo": "ts-node demo/usage.ts",
+    "web": "ts-node server/app.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/src/index.js",
+    "clean": "rm -rf dist",
+    "deploy:dev": "vercel --config vercel.dev.json",
+    "deploy:staging": "vercel --config vercel.staging.json",
+    "deploy:prod": "vercel --config vercel.json --prod",
+    "env:pull:dev": "vercel env pull .env.development --config vercel.dev.json",
+    "env:pull:staging": "vercel env pull .env.staging --config vercel.staging.json"
+  },
+  "keywords": [
+    "soulcard",
+    "tarot",
+    "ai",
+    "soul",
+    "cards",
+    "divination",
+    "typescript",
+    "spirituality"
+  ],
+  "author": "SoulCard Development Team",
+  "license": "MIT",
+  "homepage": "https://soulcard.app",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "openai": "^5.11.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/soulcard-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/soulcard-app/issues"
+  }
+}
