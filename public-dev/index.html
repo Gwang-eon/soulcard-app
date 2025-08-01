@@ -547,7 +547,7 @@
                     category,
                     engineType: selectedEngine  // 엔진 타입 추가
                 };
-                const response = await fetch(`/api/reading/${type}`, {
+                const response = await fetch(`/api/reading/${type}.js`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
@@ -1031,7 +1031,7 @@
                 
                 console.log('API로 전송할 카드 데이터:', cardsForAPI);
                 
-                const response = await fetch('/api/reading/three-card', {
+                const response = await fetch('/api/reading/three-card.js', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
