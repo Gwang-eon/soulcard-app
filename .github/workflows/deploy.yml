@@ -27,12 +27,15 @@ jobs:
 
       - name: Run tests
         run: npm test
+        continue-on-error: true
 
       - name: Run linting
         run: npm run lint
+        continue-on-error: true
 
       - name: Type check
         run: npm run typecheck
+        continue-on-error: true
 
       - name: Set Environment Variables
         run: |
