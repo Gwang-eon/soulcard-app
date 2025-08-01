@@ -28,10 +28,6 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
-        },
-        {
-          "key": "WWW-Authenticate",
-          "value": "Basic realm=\"Development Environment\""
         }
       ]
     }
