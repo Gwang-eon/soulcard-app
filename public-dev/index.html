@@ -447,11 +447,10 @@
         </div>
     </div>
 
-    <!-- Socket.IO 클라이언트 -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Socket.IO 제거됨 - 서버리스 환경에서는 WebSocket 미사용 -->
     
-    <!-- 실시간 분석 UI -->
-    <script src="/js/realtime-ui.js"></script>
+    <!-- 실시간 분석 UI - 서버리스 환경에서는 비활성화 -->
+    <!-- <script src="/js/realtime-ui.js"></script> -->
 
     <script>
         let isInitialized = false;
