@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <script>
+        // 개발 환경 인증 체크
+        if (sessionStorage.getItem('devAuth') !== 'true') {
+            window.location.href = 'auth.html';
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔮 AI 타로 카드 - 지능형 타로 점</title>
