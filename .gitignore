@@ -102,3 +102,4 @@ jest-coverage/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+.vercel

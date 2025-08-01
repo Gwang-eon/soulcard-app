@@ -1,11 +1,6 @@
 {
   "version": 2,
-  "name": "soulcard-app",
   "builds": [
-    {
-      "src": "server/app.ts",
-      "use": "@vercel/node"
-    },
     {
       "src": "public/**/*",
       "use": "@vercel/static"
@@ -13,20 +8,11 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server/app.ts"
-    },
-    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "server/app.ts": {
-      "maxDuration": 30
-    }
   }
 }

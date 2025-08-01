@@ -1,0 +1,94 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main, develop, staging]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Set Environment Variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_PROD }}" >> $GITHUB_ENV
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+            echo "CONFIG_FILE=vercel.json" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_STAGING }}" >> $GITHUB_ENV
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+            echo "CONFIG_FILE=vercel.staging.json" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_DEV }}" >> $GITHUB_ENV
+            echo "ENVIRONMENT=development" >> $GITHUB_ENV
+            echo "CONFIG_FILE=vercel.dev.json" >> $GITHUB_ENV
+          else
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_DEV }}" >> $GITHUB_ENV
+            echo "ENVIRONMENT=preview" >> $GITHUB_ENV
+            echo "CONFIG_FILE=vercel.dev.json" >> $GITHUB_ENV
+          fi
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull --yes --environment=${{ env.ENVIRONMENT }} \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --config=${{ env.CONFIG_FILE }}
+
+      - name: Build Project Artifacts
+        run: |
+          if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --config=${{ env.CONFIG_FILE }}
+          else
+            vercel build --token=${{ secrets.VERCEL_TOKEN }} --config=${{ env.CONFIG_FILE }}
+          fi
+
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        run: |
+          if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+            url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --config=${{ env.CONFIG_FILE }})
+          else
+            url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --config=${{ env.CONFIG_FILE }})
+          fi
+          echo "url=$url" >> $GITHUB_OUTPUT
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Deploy Preview ready!\n\n✅ Preview: ${{ steps.deploy.outputs.url }}\n\nEnvironment: \`${{ env.ENVIRONMENT }}\``
+            })
