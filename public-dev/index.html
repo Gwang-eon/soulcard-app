@@ -491,7 +491,7 @@
         // 상태 확인
         async function checkStatus() {
             try {
-                const response = await fetch('/api/status');
+                const response = await fetch('/api/status.js');
                 const data = await response.json();
                 
                 const statusBar = document.getElementById('statusBar');
@@ -644,7 +644,7 @@
             }
             
             try {
-                const response = await fetch('/api/analyze-question', {
+                const response = await fetch('/api/analyze-question.js', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question })
