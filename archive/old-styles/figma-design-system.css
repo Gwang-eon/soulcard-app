@@ -1,0 +1,290 @@
+/* 🎨 Figma Design System CSS Variables
+   기존 CSS와 충돌 방지를 위해 별도 파일로 분리
+   필요한 곳에서만 선택적 사용 */
+
+:root {
+  /* 🌈 프라이머리 컬러 시스템 */
+  --figma-primary-50: #f0f4ff;
+  --figma-primary-100: #e0e7ff;
+  --figma-primary-200: #c7d2fe;
+  --figma-primary-300: #a5b4fc;
+  --figma-primary-400: #818cf8;
+  --figma-primary-500: #6366f1;
+  --figma-primary-600: #4f46e5;
+  --figma-primary-700: #4338ca;
+  --figma-primary-800: #3730a3;
+  --figma-primary-900: #312e81;
+
+  /* 액센트 컬러 */
+  --figma-accent-purple: #a855f7;
+  --figma-accent-pink: #ec4899;
+  --figma-accent-gold: #f59e0b;
+
+  /* 기능별 컬러 */
+  --figma-love-color: #ec4899;
+  --figma-career-color: #3b82f6;
+  --figma-money-color: #10b981;
+  --figma-health-color: #ef4444;
+  --figma-spiritual-color: #8b5cf6;
+
+  /* 그레이스케일 */
+  --figma-gray-50: #f9fafb;
+  --figma-gray-100: #f3f4f6;
+  --figma-gray-200: #e5e7eb;
+  --figma-gray-300: #d1d5db;
+  --figma-gray-400: #9ca3af;
+  --figma-gray-500: #6b7280;
+  --figma-gray-600: #4b5563;
+  --figma-gray-700: #374151;
+  --figma-gray-800: #1f2937;
+  --figma-gray-900: #111827;
+
+  /* 다크모드 배경 */
+  --figma-dark-bg-primary: #0f0f23;
+  --figma-dark-bg-secondary: #1a1a2e;
+  --figma-dark-bg-tertiary: #16213e;
+
+  /* 시스템 컬러 */
+  --figma-success: #10b981;
+  --figma-warning: #f59e0b;
+  --figma-error: #ef4444;
+  --figma-info: #3b82f6;
+
+  /* 투명도 */
+  --figma-overlay-light: rgba(255, 255, 255, 0.9);
+  --figma-overlay-dark: rgba(15, 15, 35, 0.85);
+  --figma-card-shadow: rgba(102, 126, 234, 0.25);
+
+  /* 🎨 그라데이션 */
+  --figma-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --figma-gradient-secondary: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --figma-gradient-accent: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --figma-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --figma-gradient-light: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --figma-gradient-card: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+
+  /* ✍️ 타이포그래피 */
+  --figma-text-6xl: 60px;
+  --figma-text-5xl: 48px;
+  --figma-text-4xl: 36px;
+  --figma-text-3xl: 30px;
+  --figma-text-2xl: 24px;
+  --figma-text-xl: 20px;
+  --figma-text-lg: 18px;
+  --figma-text-base: 16px;
+  --figma-text-sm: 14px;
+  --figma-text-xs: 12px;
+
+  --figma-font-thin: 100;
+  --figma-font-light: 300;
+  --figma-font-normal: 400;
+  --figma-font-medium: 500;
+  --figma-font-semibold: 600;
+  --figma-font-bold: 700;
+  --figma-font-extrabold: 800;
+
+  /* 🃏 타로카드 시스템 */
+  --figma-card-ratio: 0.625;
+  --figma-card-xs: 40px;
+  --figma-card-sm: 60px;
+  --figma-card-md: 80px;
+  --figma-card-lg: 120px;
+  --figma-card-xl: 160px;
+
+  --figma-card-border-radius: 12px;
+  --figma-card-glow: 0 0 20px rgba(102, 126, 234, 0.4);
+
+  /* 애니메이션 */
+  --figma-transition-fast: 0.15s ease-out;
+  --figma-transition-normal: 0.3s ease-out;
+  --figma-transition-slow: 0.5s ease-out;
+  --figma-card-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --figma-flip-transition: transform 0.6s preserve-3d;
+
+  /* 🌟 아이콘 시스템 */
+  --figma-icon-xs: 16px;
+  --figma-icon-sm: 20px;
+  --figma-icon-md: 24px;
+  --figma-icon-lg: 32px;
+  --figma-icon-xl: 48px;
+
+  /* 📐 Z-index 시스템 */
+  --figma-z-dropdown: 1000;
+  --figma-z-sticky: 1020;
+  --figma-z-fixed: 1030;
+  --figma-z-modal-backdrop: 1040;
+  --figma-z-modal: 1050;
+  --figma-z-popover: 1060;
+  --figma-z-tooltip: 1070;
+  --figma-z-toast: 1080;
+}
+
+/* 🎯 Figma 컴포넌트 전용 CSS 클래스들 */
+.figma-design {
+  /* Figma 컴포넌트들에만 적용되는 스타일 영역 */
+}
+
+/* 🔘 버튼 시스템 */
+.figma-design .btn-primary {
+  background: var(--figma-gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: var(--figma-font-medium);
+  font-size: var(--figma-text-base);
+  transition: var(--figma-transition-normal);
+  cursor: pointer;
+}
+
+.figma-design .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--figma-card-shadow);
+}
+
+.figma-design .btn-secondary {
+  background: transparent;
+  color: var(--figma-primary-600);
+  border: 2px solid var(--figma-primary-600);
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: var(--figma-font-medium);
+  font-size: var(--figma-text-base);
+  transition: var(--figma-transition-normal);
+  cursor: pointer;
+}
+
+.figma-design .btn-secondary:hover {
+  background: var(--figma-primary-600);
+  color: white;
+}
+
+/* 🃏 카드 시스템 */
+.figma-design .card-container {
+  background: var(--figma-gradient-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--figma-card-border-radius);
+  padding: 24px;
+  transition: var(--figma-card-transition);
+}
+
+.figma-design .card-container:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--figma-card-glow);
+}
+
+.figma-design .tarot-card {
+  aspect-ratio: var(--figma-card-ratio);
+  border-radius: var(--figma-card-border-radius);
+  overflow: hidden;
+  transition: var(--figma-card-transition);
+  box-shadow: 0 4px 12px var(--figma-card-shadow);
+}
+
+.figma-design .tarot-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--figma-card-glow);
+}
+
+/* 📱 모바일 레이아웃 */
+.figma-design .mobile-container {
+  max-width: 393px;
+  margin: 0 auto;
+  padding: 0 20px;
+  min-height: 100vh;
+  background: var(--figma-gradient-dark);
+}
+
+/* 🎨 그라데이션 배경 클래스들 */
+.figma-design .bg-gradient-primary {
+  background: var(--figma-gradient-primary);
+}
+
+.figma-design .bg-gradient-secondary {
+  background: var(--figma-gradient-secondary);
+}
+
+.figma-design .bg-gradient-dark {
+  background: var(--figma-gradient-dark);
+}
+
+/* 💫 애니메이션 클래스들 */
+.figma-design .transition-fast {
+  transition: var(--figma-transition-fast);
+}
+
+.figma-design .transition-normal {
+  transition: var(--figma-transition-normal);
+}
+
+.figma-design .transition-slow {
+  transition: var(--figma-transition-slow);
+}
+
+/* 🎯 유틸리티 클래스들 */
+.figma-design .text-primary {
+  color: var(--figma-primary-600);
+}
+
+.figma-design .text-accent-purple {
+  color: var(--figma-accent-purple);
+}
+
+.figma-design .text-accent-gold {
+  color: var(--figma-accent-gold);
+}
+
+.figma-design .text-love {
+  color: var(--figma-love-color);
+}
+
+.figma-design .text-career {
+  color: var(--figma-career-color);
+}
+
+.figma-design .text-money {
+  color: var(--figma-money-color);
+}
+
+.figma-design .text-health {
+  color: var(--figma-health-color);
+}
+
+/* 📐 사이즈 유틸리티 */
+.figma-design .icon-xs {
+  width: var(--figma-icon-xs);
+  height: var(--figma-icon-xs);
+}
+
+.figma-design .icon-sm {
+  width: var(--figma-icon-sm);
+  height: var(--figma-icon-sm);
+}
+
+.figma-design .icon-md {
+  width: var(--figma-icon-md);
+  height: var(--figma-icon-md);
+}
+
+.figma-design .icon-lg {
+  width: var(--figma-icon-lg);
+  height: var(--figma-icon-lg);
+}
+
+/* 🔥 반응형 미디어 쿼리 */
+@media (max-width: 375px) {
+  .figma-design .mobile-container {
+    padding: 0 16px;
+  }
+  
+  .figma-design .card-container {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .figma-design .mobile-container {
+    padding: 0 32px;
+  }
+}

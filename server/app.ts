@@ -23,7 +23,7 @@ const PORT = 3001;
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public-dev')));
 
 // 초기화
 let isInitialized = false;

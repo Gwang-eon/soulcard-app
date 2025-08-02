@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 타로카드 전체 참조표 - Figma Export용</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--figma-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .export-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: var(--figma-gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--figma-transition-normal);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--figma-card-shadow);
+        }
+
+        .group-section {
+            margin-bottom: 50px;
+            background: var(--figma-gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .group-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .group-count {
+            background: var(--figma-accent-purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .cards-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .cards-table th,
+        .cards-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cards-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--figma-accent-purple);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .cards-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .card-preview {
+            width: 40px;
+            height: 64px;
+            border-radius: 4px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-preview.error {
+            background: var(--figma-gray-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--figma-gray-400);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-found { background: var(--figma-success); }
+        .status-missing { background: var(--figma-error); }
+
+        .path-code {
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--figma-accent-gold);
+            cursor: pointer;
+            transition: var(--figma-transition-fast);
+        }
+
+        .path-code:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .copy-button {
+            background: var(--figma-accent-purple);
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: var(--figma-transition-fast);
+        }
+
+        .copy-button:hover {
+            background: var(--figma-accent-pink);
+        }
+
+        .export-format {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .format-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--figma-accent-gold);
+        }
+
+        .format-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.4;
+        }
+
+        /* 수트별 색상 */
+        .major-arcana { border-left: 4px solid var(--figma-accent-purple); }
+        .cups { border-left: 4px solid var(--figma-love-color); }
+        .wands { border-left: 4px solid var(--figma-career-color); }
+        .swords { border-left: 4px solid var(--figma-health-color); }
+        .pentacles { border-left: 4px solid var(--figma-money-color); }
+
+        @media (max-width: 768px) {
+            .cards-table {
+                font-size: 0.85rem;
+            }
+            
+            .cards-table th,
+            .cards-table td {
+                padding: 8px 10px;
+            }
+            
+            .path-code {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🃏 타로카드 전체 참조표</h1>
+            <p class="subtitle">Figma Export 및 개발용 완전한 카드 목록 (78장)</p>
+        </div>
+
+        <div class="export-actions">
+            <button class="action-button" onclick="exportAsJSON()">📄 JSON 다운로드</button>
+            <button class="action-button" onclick="exportAsCSV()">📊 CSV 다운로드</button>
+            <button class="action-button" onclick="exportAsJavaScript()">⚙️ JavaScript 배열</button>
+            <button class="action-button" onclick="copyImagePaths()">📋 이미지 경로 복사</button>
+        </div>
+
+        <!-- 메이저 아르카나 -->
+        <div class="group-section major-arcana">
+            <div class="group-header">
+                <div class="group-title">
+                    🌟 <span>메이저 아르카나 (Major Arcana)</span>
+                </div>
+                <div class="group-count">22장</div>
+            </div>
+            <table class="cards-table">
+                <thead>
+                    <tr>
+                        <th>미리보기</th>
+                        <th>번호</th>
+                        <th>영문명</th>
+                        <th>한글명</th>
+                        <th>이미지 경로</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="major-arcana-table">
+                    <!-- JavaScript로 동적 생성 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 컵 수트 -->
+        <div class="group-section cups">
+            <div class="group-header">
+                <div class="group-title">
+                    💧 <span>컵 (Cups) - 물의 원소</span>
+                </div>
+                <div class="group-count">14장</div>
+            </div>
+            <table class="cards-table">
+                <thead>
+                    <tr>
+                        <th>미리보기</th>
+                        <th>순서</th>
+                        <th>영문명</th>
+                        <th>한글명</th>
+                        <th>이미지 경로</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="cups-table">
+                    <!-- JavaScript로 동적 생성 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 완드 수트 -->
+        <div class="group-section wands">
+            <div class="group-header">
+                <div class="group-title">
+                    🔥 <span>완드 (Wands) - 불의 원소</span>
+                </div>
+                <div class="group-count">14장</div>
+            </div>
+            <table class="cards-table">
+                <thead>
+                    <tr>
+                        <th>미리보기</th>
+                        <th>순서</th>
+                        <th>영문명</th>
+                        <th>한글명</th>
+                        <th>이미지 경로</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="wands-table">
+                    <!-- JavaScript로 동적 생성 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 소드 수트 -->
+        <div class="group-section swords">
+            <div class="group-header">
+                <div class="group-title">
+                    💨 <span>소드 (Swords) - 공기의 원소</span>
+                </div>
+                <div class="group-count">14장</div>
+            </div>
+            <table class="cards-table">
+                <thead>
+                    <tr>
+                        <th>미리보기</th>
+                        <th>순서</th>
+                        <th>영문명</th>
+                        <th>한글명</th>
+                        <th>이미지 경로</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="swords-table">
+                    <!-- JavaScript로 동적 생성 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 펜타클 수트 -->
+        <div class="group-section pentacles">
+            <div class="group-header">
+                <div class="group-title">
+                    🌍 <span>펜타클 (Pentacles) - 땅의 원소</span>
+                </div>
+                <div class="group-count">14장</div>
+            </div>
+            <table class="cards-table">
+                <thead>
+                    <tr>
+                        <th>미리보기</th>
+                        <th>순서</th>
+                        <th>영문명</th>
+                        <th>한글명</th>
+                        <th>이미지 경로</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="pentacles-table">
+                    <!-- JavaScript로 동적 생성 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Export 포맷 예시 -->
+        <div class="export-format">
+            <div class="format-title">📋 Export 데이터 포맷 예시</div>
+            <div class="format-content" id="format-preview">
+// JavaScript 배열 형태
+const tarotCards = [
+  {
+    id: 0,
+    englishName: "The Fool",
+    koreanName: "바보",
+    imagePath: "/images/cards/major-arcana/00-fool.webp",
+    suit: "major-arcana",
+    type: "major"
+  },
+  // ... 총 78장
+];
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전체 타로덱 정의 (78장) - 확정된 이미지 경로 포함
+        const completeTarotDeck = {
+            majorArcana: [
+                { id: 0, englishName: "The Fool", koreanName: "바보", imagePath: "/images/cards/major-arcana/00-fool.webp" },
+                { id: 1, englishName: "The Magician", koreanName: "마법사", imagePath: "/images/cards/major-arcana/01-magician.webp" },
+                { id: 2, englishName: "The High Priestess", koreanName: "여사제", imagePath: "/images/cards/major-arcana/02-highpriestess.webp" },
+                { id: 3, englishName: "The Empress", koreanName: "여황제", imagePath: "/images/cards/major-arcana/03-empress.webp" },
+                { id: 4, englishName: "The Emperor", koreanName: "황제", imagePath: "/images/cards/major-arcana/04-emperor.webp" },
+                { id: 5, englishName: "The Hierophant", koreanName: "교황", imagePath: "/images/cards/major-arcana/05-hierophant.webp" },
+                { id: 6, englishName: "The Lovers", koreanName: "연인", imagePath: "/images/cards/major-arcana/06-lovers.webp" },
+                { id: 7, englishName: "The Chariot", koreanName: "전차", imagePath: "/images/cards/major-arcana/07-chariot.webp" },
+                { id: 8, englishName: "Strength", koreanName: "힘", imagePath: "/images/cards/major-arcana/08-strength.webp" },
+                { id: 9, englishName: "The Hermit", koreanName: "은둔자", imagePath: "/images/cards/major-arcana/09-hermit.webp" },
+                { id: 10, englishName: "Wheel of Fortune", koreanName: "운명의 수레바퀴", imagePath: "/images/cards/major-arcana/10-wheel-of-fortune.webp" },
+                { id: 11, englishName: "Justice", koreanName: "정의", imagePath: "/images/cards/major-arcana/11-justice.webp" },
+                { id: 12, englishName: "The Hanged Man", koreanName: "매달린 남자", imagePath: "/images/cards/major-arcana/12-hanged-man.webp" },
+                { id: 13, englishName: "Death", koreanName: "죽음", imagePath: "/images/cards/major-arcana/13-death.webp" },
+                { id: 14, englishName: "Temperance", koreanName: "절제", imagePath: "/images/cards/major-arcana/14-temperance.webp" },
+                { id: 15, englishName: "The Devil", koreanName: "악마", imagePath: "/images/cards/major-arcana/15-devil.webp" },
+                { id: 16, englishName: "The Tower", koreanName: "탑", imagePath: "/images/cards/major-arcana/16-tower.webp" },
+                { id: 17, englishName: "The Star", koreanName: "별", imagePath: "/images/cards/major-arcana/17-star.webp" },
+                { id: 18, englishName: "The Moon", koreanName: "달", imagePath: "/images/cards/major-arcana/18-moon.webp" },
+                { id: 19, englishName: "The Sun", koreanName: "태양", imagePath: "/images/cards/major-arcana/19-sun.webp" },
+                { id: 20, englishName: "Judgement", koreanName: "심판", imagePath: "/images/cards/major-arcana/20-judgement.webp" },
+                { id: 21, englishName: "The World", koreanName: "세계", imagePath: "/images/cards/major-arcana/21-world.webp" }
+            ],
+            cups: [
+                { englishName: "Ace of Cups", koreanName: "컵 에이스", imagePath: "/images/cards/cups/ace-of-cups.webp" },
+                { englishName: "Two of Cups", koreanName: "컵 2", imagePath: "/images/cards/cups/two-of-cups.webp" },
+                { englishName: "Three of Cups", koreanName: "컵 3", imagePath: "/images/cards/cups/three-of-cups.webp" },
+                { englishName: "Four of Cups", koreanName: "컵 4", imagePath: "/images/cards/cups/four-of-cups.webp" },
+                { englishName: "Five of Cups", koreanName: "컵 5", imagePath: "/images/cards/cups/five-of-cups.webp" },
+                { englishName: "Six of Cups", koreanName: "컵 6", imagePath: "/images/cards/cups/six-of-cups.webp" },
+                { englishName: "Seven of Cups", koreanName: "컵 7", imagePath: "/images/cards/cups/seven-of-cups.webp" },
+                { englishName: "Eight of Cups", koreanName: "컵 8", imagePath: "/images/cards/cups/eight-of-cups.webp" },
+                { englishName: "Nine of Cups", koreanName: "컵 9", imagePath: "/images/cards/cups/nine-of-cups.webp" },
+                { englishName: "Ten of Cups", koreanName: "컵 10", imagePath: "/images/cards/cups/ten-of-cups.webp" },
+                { englishName: "Page of Cups", koreanName: "컵 페이지", imagePath: "/images/cards/cups/page-of-cups.webp" },
+                { englishName: "Knight of Cups", koreanName: "컵 나이트", imagePath: "/images/cards/cups/knight-of-cups.webp" },
+                { englishName: "Queen of Cups", koreanName: "컵 퀸", imagePath: "/images/cards/cups/queen-of-cups.webp" },
+                { englishName: "King of Cups", koreanName: "컵 킹", imagePath: "/images/cards/cups/king-of-cups.webp" }
+            ],
+            wands: [
+                { englishName: "Ace of Wands", koreanName: "완드 에이스", imagePath: "/images/cards/wands/ace-of-wands.webp" },
+                { englishName: "Two of Wands", koreanName: "완드 2", imagePath: "/images/cards/wands/two-of-wands.webp" },
+                { englishName: "Three of Wands", koreanName: "완드 3", imagePath: "/images/cards/wands/three-of-wands.webp" },
+                { englishName: "Four of Wands", koreanName: "완드 4", imagePath: "/images/cards/wands/four-of-wands.webp" },
+                { englishName: "Five of Wands", koreanName: "완드 5", imagePath: "/images/cards/wands/five-of-wands.webp" },
+                { englishName: "Six of Wands", koreanName: "완드 6", imagePath: "/images/cards/wands/six-of-wands.webp" },
+                { englishName: "Seven of Wands", koreanName: "완드 7", imagePath: "/images/cards/wands/seven-of-wands.webp" },
+                { englishName: "Eight of Wands", koreanName: "완드 8", imagePath: "/images/cards/wands/eight-of-wands.webp" },
+                { englishName: "Nine of Wands", koreanName: "완드 9", imagePath: "/images/cards/wands/nine-of-wands.webp" },
+                { englishName: "Ten of Wands", koreanName: "완드 10", imagePath: "/images/cards/wands/ten-of-wands.webp" },
+                { englishName: "Page of Wands", koreanName: "완드 페이지", imagePath: "/images/cards/wands/page-of-wands.webp" },
+                { englishName: "Knight of Wands", koreanName: "완드 나이트", imagePath: "/images/cards/wands/knight-of-wands.webp" },
+                { englishName: "Queen of Wands", koreanName: "완드 퀸", imagePath: "/images/cards/wands/queen-of-wands.webp" },
+                { englishName: "King of Wands", koreanName: "완드 킹", imagePath: "/images/cards/wands/king-of-wands.webp" }
+            ],
+            swords: [
+                { englishName: "Ace of Swords", koreanName: "소드 에이스", imagePath: "/images/cards/swords/ace-of-swords.webp" },
+                { englishName: "Two of Swords", koreanName: "소드 2", imagePath: "/images/cards/swords/two-of-swords.webp" },
+                { englishName: "Three of Swords", koreanName: "소드 3", imagePath: "/images/cards/swords/three-of-swords.webp" },
+                { englishName: "Four of Swords", koreanName: "소드 4", imagePath: "/images/cards/swords/four-of-swords.webp" },
+                { englishName: "Five of Swords", koreanName: "소드 5", imagePath: "/images/cards/swords/five-of-swords.webp" },
+                { englishName: "Six of Swords", koreanName: "소드 6", imagePath: "/images/cards/swords/six-of-swords.webp" },
+                { englishName: "Seven of Swords", koreanName: "소드 7", imagePath: "/images/cards/swords/seven-of-swords.webp" },
+                { englishName: "Eight of Swords", koreanName: "소드 8", imagePath: "/images/cards/swords/eight-of-swords.webp" },
+                { englishName: "Nine of Swords", koreanName: "소드 9", imagePath: "/images/cards/swords/nine-of-swords.webp" },
+                { englishName: "Ten of Swords", koreanName: "소드 10", imagePath: "/images/cards/swords/ten-of-swords.webp" },
+                { englishName: "Page of Swords", koreanName: "소드 페이지", imagePath: "/images/cards/swords/page-of-swords.webp" },
+                { englishName: "Knight of Swords", koreanName: "소드 나이트", imagePath: "/images/cards/swords/knight-of-swords.webp" },
+                { englishName: "Queen of Swords", koreanName: "소드 퀸", imagePath: "/images/cards/swords/queen-of-swords.webp" },
+                { englishName: "King of Swords", koreanName: "소드 킹", imagePath: "/images/cards/swords/king-of-swords.webp" }
+            ],
+            pentacles: [
+                { englishName: "Ace of Pentacles", koreanName: "펜타클 에이스", imagePath: "/images/cards/pentacles/ace-of-pentacles.webp" },
+                { englishName: "Two of Pentacles", koreanName: "펜타클 2", imagePath: "/images/cards/pentacles/two-of-pentacles.webp" },
+                { englishName: "Three of Pentacles", koreanName: "펜타클 3", imagePath: "/images/cards/pentacles/three-of-pentacles.webp" },
+                { englishName: "Four of Pentacles", koreanName: "펜타클 4", imagePath: "/images/cards/pentacles/four-of-pentacles.webp" },
+                { englishName: "Five of Pentacles", koreanName: "펜타클 5", imagePath: "/images/cards/pentacles/five-of-pentacles.webp" },
+                { englishName: "Six of Pentacles", koreanName: "펜타클 6", imagePath: "/images/cards/pentacles/six-of-pentacles.webp" },
+                { englishName: "Seven of Pentacles", koreanName: "펜타클 7", imagePath: "/images/cards/pentacles/seven-of-pentacles.webp" },
+                { englishName: "Eight of Pentacles", koreanName: "펜타클 8", imagePath: "/images/cards/pentacles/eight-of-pentacles.webp" },
+                { englishName: "Nine of Pentacles", koreanName: "펜타클 9", imagePath: "/images/cards/pentacles/nine-of-pentacles.webp" },
+                { englishName: "Ten of Pentacles", koreanName: "펜타클 10", imagePath: "/images/cards/pentacles/ten-of-pentacles.webp" },
+                { englishName: "Page of Pentacles", koreanName: "펜타클 페이지", imagePath: "/images/cards/pentacles/page-of-pentacles.webp" },
+                { englishName: "Knight of Pentacles", koreanName: "펜타클 나이트", imagePath: "/images/cards/pentacles/knight-of-pentacles.webp" },
+                { englishName: "Queen of Pentacles", koreanName: "펜타클 퀸", imagePath: "/images/cards/pentacles/queen-of-pentacles.webp" },
+                { englishName: "King of Pentacles", koreanName: "펜타클 킹", imagePath: "/images/cards/pentacles/king-of-pentacles.webp" }
+            ]
+        };
+
+        // 이미지 존재 확인
+        async function checkImageExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        // 테이블 행 생성
+        async function createTableRow(card, index, suitName) {
+            const exists = await checkImageExists(card.imagePath);
+            
+            return `
+                <tr>
+                    <td>
+                        ${exists ? 
+                            `<img src="${card.imagePath}" alt="${card.englishName}" class="card-preview" loading="lazy">` :
+                            `<div class="card-preview error">🃏</div>`
+                        }
+                    </td>
+                    <td>${card.id !== undefined ? String(card.id).padStart(2, '0') : index + 1}</td>
+                    <td><strong>${card.englishName}</strong></td>
+                    <td>${card.koreanName}</td>
+                    <td>
+                        <span class="path-code" onclick="copyToClipboard('${card.imagePath}')">${card.imagePath}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${card.imagePath}')">📋</button>
+                    </td>
+                    <td>
+                        <span class="status-indicator ${exists ? 'status-found' : 'status-missing'}"></span>
+                        ${exists ? '✅ 있음' : '❌ 없음'}
+                    </td>
+                </tr>
+            `;
+        }
+
+        // 클립보드 복사
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`복사됨: ${text}`, 'success');
+            });
+        }
+
+        // 전체 이미지 경로 복사
+        function copyImagePaths() {
+            const allPaths = [];
+            Object.values(completeTarotDeck).forEach(suit => {
+                suit.forEach(card => {
+                    allPaths.push(card.imagePath);
+                });
+            });
+            
+            const pathsText = allPaths.join('\n');
+            copyToClipboard(pathsText);
+            showNotification('모든 이미지 경로가 복사되었습니다!', 'success');
+        }
+
+        // JSON 다운로드
+        function exportAsJSON() {
+            const flatDeck = [];
+            Object.entries(completeTarotDeck).forEach(([suitName, cards]) => {
+                cards.forEach((card, index) => {
+                    flatDeck.push({
+                        ...card,
+                        suit: suitName,
+                        type: suitName === 'majorArcana' ? 'major' : 'minor',
+                        order: card.id !== undefined ? card.id : index
+                    });
+                });
+            });
+            
+            downloadFile('tarot-cards-complete.json', JSON.stringify(flatDeck, null, 2), 'application/json');
+        }
+
+        // CSV 다운로드
+        function exportAsCSV() {
+            const headers = ['번호', '영문명', '한글명', '이미지경로', '수트', '타입'];
+            const rows = [headers.join(',')];
+            
+            Object.entries(completeTarotDeck).forEach(([suitName, cards]) => {
+                cards.forEach((card, index) => {
+                    const row = [
+                        card.id !== undefined ? card.id : index,
+                        `"${card.englishName}"`,
+                        `"${card.koreanName}"`,
+                        `"${card.imagePath}"`,
+                        suitName,
+                        suitName === 'majorArcana' ? 'major' : 'minor'
+                    ];
+                    rows.push(row.join(','));
+                });
+            });
+            
+            downloadFile('tarot-cards-complete.csv', rows.join('\n'), 'text/csv');
+        }
+
+        // JavaScript 배열 다운로드
+        function exportAsJavaScript() {
+            const jsContent = `// 🃏 타로카드 전체 데이터 (78장)
+// Generated from SoulCard.app
+
+export const TAROT_CARDS = ${JSON.stringify(completeTarotDeck, null, 2)};
+
+// 플랫 배열 형태
+export const TAROT_CARDS_FLAT = [
+${Object.entries(completeTarotDeck).map(([suitName, cards]) => 
+    cards.map((card, index) => `  {
+    ${card.id !== undefined ? `id: ${card.id},` : `order: ${index + 1},`}
+    englishName: "${card.englishName}",
+    koreanName: "${card.koreanName}",
+    imagePath: "${card.imagePath}",
+    suit: "${suitName}",
+    type: "${suitName === 'majorArcana' ? 'major' : 'minor'}"
+  }`).join(',\n')
+).join(',\n')}
+];
+
+// 이미지 경로만 추출
+export const CARD_IMAGE_PATHS = [
+${Object.values(completeTarotDeck).flat().map(card => `  "${card.imagePath}"`).join(',\n')}
+];`;
+            
+            downloadFile('tarot-cards-data.js', jsContent, 'text/javascript');
+        }
+
+        // 파일 다운로드
+        function downloadFile(filename, content, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`${filename} 다운로드 완료!`, 'success');
+        }
+
+        // 알림 표시
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--figma-success)' : 'var(--figma-info)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 페이지 로드
+        async function loadAllTables() {
+            // 메이저 아르카나
+            const majorTable = document.getElementById('major-arcana-table');
+            for (let i = 0; i < completeTarotDeck.majorArcana.length; i++) {
+                const row = await createTableRow(completeTarotDeck.majorArcana[i], i, 'majorArcana');
+                majorTable.innerHTML += row;
+            }
+
+            // 마이너 아르카나
+            for (const suitName of ['cups', 'wands', 'swords', 'pentacles']) {
+                const table = document.getElementById(`${suitName}-table`);
+                for (let i = 0; i < completeTarotDeck[suitName].length; i++) {
+                    const row = await createTableRow(completeTarotDeck[suitName][i], i, suitName);
+                    table.innerHTML += row;
+                }
+            }
+        }
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 페이지 로드 시 실행
+        window.addEventListener('load', loadAllTables);
+    </script>
+</body>
+</html>

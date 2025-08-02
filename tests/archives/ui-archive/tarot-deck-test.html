@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulCard - 타로 덱 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .deck-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .card-number {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .card-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .card-name-ko {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .card-suit {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #95a5a6;
+            margin-bottom: 10px;
+        }
+        
+        .card-keywords {
+            font-size: 12px;
+            color: #34495e;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+        
+        .suit-major { border-left: 4px solid #e74c3c; }
+        .suit-cups { border-left: 4px solid #3498db; }
+        .suit-wands { border-left: 4px solid #f39c12; }
+        .suit-swords { border-left: 4px solid #95a5a6; }
+        .suit-pentacles { border-left: 4px solid #27ae60; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .selected-cards {
+            margin-top: 30px;
+        }
+        
+        .selected-cards h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 SoulCard 타로 덱 테스트</h1>
+        
+        <div class="deck-info">
+            <strong>전체 타로카드 덱 (78장)</strong><br>
+            메이저 아르카나 22장 + 마이너 아르카나 56장
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCards">78</div>
+                <div class="stat-label">전체 카드</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="majorCount">22</div>
+                <div class="stat-label">메이저 아르카나</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="minorCount">56</div>
+                <div class="stat-label">마이너 아르카나</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="shuffleCount">0</div>
+                <div class="stat-label">셔플 횟수</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="showAllCards()">전체 덱 보기</button>
+            <button onclick="shuffleDeck()">덱 셔플</button>
+            <button onclick="drawCard()">카드 1장 뽑기</button>
+            <button onclick="drawThreeCards()">카드 3장 뽑기</button>
+            <button onclick="showMajorArcana()">메이저 아르카나만</button>
+            <button onclick="showMinorArcana()">마이너 아르카나만</button>
+            <button onclick="resetDeck()">덱 리셋</button>
+        </div>
+        
+        <div class="selected-cards" id="selectedCards" style="display: none;">
+            <h3>선택된 카드</h3>
+            <div class="cards-grid" id="selectedGrid"></div>
+        </div>
+        
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <script>
+        // 메이저 아르카나 (22장)
+        const majorArcana = [
+            { id: "major-00", name: "The Fool", nameKo: "바보", suit: "major", number: 0, keywordsKo: ["새로운 시작", "순수함", "모험"] },
+            { id: "major-01", name: "The Magician", nameKo: "마법사", suit: "major", number: 1, keywordsKo: ["의지력", "창조", "실행력"] },
+            { id: "major-02", name: "The High Priestess", nameKo: "여사제", suit: "major", number: 2, keywordsKo: ["직감", "신비", "내면의 지혜"] },
+            { id: "major-03", name: "The Empress", nameKo: "여황제", suit: "major", number: 3, keywordsKo: ["풍요", "창조력", "모성"] },
+            { id: "major-04", name: "The Emperor", nameKo: "황제", suit: "major", number: 4, keywordsKo: ["권위", "안정", "리더십"] },
+            { id: "major-05", name: "The Hierophant", nameKo: "교황", suit: "major", number: 5, keywordsKo: ["전통", "교육", "영성"] },
+            { id: "major-06", name: "The Lovers", nameKo: "연인", suit: "major", number: 6, keywordsKo: ["사랑", "선택", "조화"] },
+            { id: "major-07", name: "The Chariot", nameKo: "전차", suit: "major", number: 7, keywordsKo: ["승리", "의지력", "극복"] },
+            { id: "major-08", name: "Strength", nameKo: "힘", suit: "major", number: 8, keywordsKo: ["용기", "인내", "내면의 힘"] },
+            { id: "major-09", name: "The Hermit", nameKo: "은둔자", suit: "major", number: 9, keywordsKo: ["성찰", "지혜", "내적 탐구"] },
+            { id: "major-10", name: "Wheel of Fortune", nameKo: "운명의 수레바퀴", suit: "major", number: 10, keywordsKo: ["운명", "변화", "순환"] },
+            { id: "major-11", name: "Justice", nameKo: "정의", suit: "major", number: 11, keywordsKo: ["공정", "균형", "진실"] },
+            { id: "major-12", name: "The Hanged Man", nameKo: "매달린 남자", suit: "major", number: 12, keywordsKo: ["희생", "관점 전환", "깨달음"] },
+            { id: "major-13", name: "Death", nameKo: "죽음", suit: "major", number: 13, keywordsKo: ["변화", "재생", "새로운 시작"] },
+            { id: "major-14", name: "Temperance", nameKo: "절제", suit: "major", number: 14, keywordsKo: ["조화", "균형", "치유"] },
+            { id: "major-15", name: "The Devil", nameKo: "악마", suit: "major", number: 15, keywordsKo: ["유혹", "속박", "물질주의"] },
+            { id: "major-16", name: "The Tower", nameKo: "탑", suit: "major", number: 16, keywordsKo: ["파괴", "급변", "깨달음"] },
+            { id: "major-17", name: "The Star", nameKo: "별", suit: "major", number: 17, keywordsKo: ["희망", "영감", "치유"] },
+            { id: "major-18", name: "The Moon", nameKo: "달", suit: "major", number: 18, keywordsKo: ["환상", "직감", "무의식"] },
+            { id: "major-19", name: "The Sun", nameKo: "태양", suit: "major", number: 19, keywordsKo: ["성공", "기쁨", "활력"] },
+            { id: "major-20", name: "Judgement", nameKo: "심판", suit: "major", number: 20, keywordsKo: ["부활", "깨달음", "용서"] },
+            { id: "major-21", name: "The World", nameKo: "세계", suit: "major", number: 21, keywordsKo: ["완성", "성취", "통합"] }
+        ];
+
+        // 컵 수트 (14장)
+        const cups = [
+            { id: "cups-01", name: "Ace of Cups", nameKo: "컵 에이스", suit: "cups", number: 1, keywordsKo: ["새로운 사랑", "감정의 시작", "영감"] },
+            { id: "cups-02", name: "Two of Cups", nameKo: "컵 2", suit: "cups", number: 2, keywordsKo: ["파트너십", "상호 매력", "연합"] },
+            { id: "cups-03", name: "Three of Cups", nameKo: "컵 3", suit: "cups", number: 3, keywordsKo: ["축하", "우정", "공동체"] },
+            { id: "cups-04", name: "Four of Cups", nameKo: "컵 4", suit: "cups", number: 4, keywordsKo: ["무관심", "명상", "재평가"] },
+            { id: "cups-05", name: "Five of Cups", nameKo: "컵 5", suit: "cups", number: 5, keywordsKo: ["실망", "상실", "후회"] },
+            { id: "cups-06", name: "Six of Cups", nameKo: "컵 6", suit: "cups", number: 6, keywordsKo: ["향수", "순진함", "과거"] },
+            { id: "cups-07", name: "Seven of Cups", nameKo: "컵 7", suit: "cups", number: 7, keywordsKo: ["환상", "선택", "꿈"] },
+            { id: "cups-08", name: "Eight of Cups", nameKo: "컵 8", suit: "cups", number: 8, keywordsKo: ["포기", "탐색", "영적 여행"] },
+            { id: "cups-09", name: "Nine of Cups", nameKo: "컵 9", suit: "cups", number: 9, keywordsKo: ["만족", "소원 성취", "행복"] },
+            { id: "cups-10", name: "Ten of Cups", nameKo: "컵 10", suit: "cups", number: 10, keywordsKo: ["가족 행복", "조화", "감정적 완성"] },
+            { id: "cups-page", name: "Page of Cups", nameKo: "컵 시종", suit: "cups", keywordsKo: ["창의성", "직감", "감성"] },
+            { id: "cups-knight", name: "Knight of Cups", nameKo: "컵 기사", suit: "cups", keywordsKo: ["로맨스", "매력", "예술성"] },
+            { id: "cups-queen", name: "Queen of Cups", nameKo: "컵 여왕", suit: "cups", keywordsKo: ["직감력", "공감", "감정적 지혜"] },
+            { id: "cups-king", name: "King of Cups", nameKo: "컵 왕", suit: "cups", keywordsKo: ["감정적 성숙", "연민", "균형"] }
+        ];
+
+        // 완드 수트 (14장)
+        const wands = [
+            { id: "wands-01", name: "Ace of Wands", nameKo: "완드 에이스", suit: "wands", number: 1, keywordsKo: ["새로운 시작", "영감", "창조적 에너지"] },
+            { id: "wands-02", name: "Two of Wands", nameKo: "완드 2", suit: "wands", number: 2, keywordsKo: ["계획", "미래 계획", "개인적 힘"] },
+            { id: "wands-03", name: "Three of Wands", nameKo: "완드 3", suit: "wands", number: 3, keywordsKo: ["확장", "예견", "무역"] },
+            { id: "wands-04", name: "Four of Wands", nameKo: "완드 4", suit: "wands", number: 4, keywordsKo: ["축하", "조화", "집"] },
+            { id: "wands-05", name: "Five of Wands", nameKo: "완드 5", suit: "wands", number: 5, keywordsKo: ["갈등", "경쟁", "투쟁"] },
+            { id: "wands-06", name: "Six of Wands", nameKo: "완드 6", suit: "wands", number: 6, keywordsKo: ["승리", "성공", "인정"] },
+            { id: "wands-07", name: "Seven of Wands", nameKo: "완드 7", suit: "wands", number: 7, keywordsKo: ["방어", "용기", "인내"] },
+            { id: "wands-08", name: "Eight of Wands", nameKo: "완드 8", suit: "wands", number: 8, keywordsKo: ["빠른 행동", "진전", "소통"] },
+            { id: "wands-09", name: "Nine of Wands", nameKo: "완드 9", suit: "wands", number: 9, keywordsKo: ["회복력", "인내", "마지막 노력"] },
+            { id: "wands-10", name: "Ten of Wands", nameKo: "완드 10", suit: "wands", number: 10, keywordsKo: ["부담", "책임", "성취의 대가"] },
+            { id: "wands-page", name: "Page of Wands", nameKo: "완드 시종", suit: "wands", keywordsKo: ["탐험", "자유로운 영혼", "모험"] },
+            { id: "wands-knight", name: "Knight of Wands", nameKo: "완드 기사", suit: "wands", keywordsKo: ["충동", "모험", "성급함"] },
+            { id: "wands-queen", name: "Queen of Wands", nameKo: "완드 여왕", suit: "wands", keywordsKo: ["자신감", "결정력", "독립성"] },
+            { id: "wands-king", name: "King of Wands", nameKo: "완드 왕", suit: "wands", keywordsKo: ["리더십", "비전", "기업가 정신"] }
+        ];
+
+        // 소드 수트 (14장)
+        const swords = [
+            { id: "swords-01", name: "Ace of Swords", nameKo: "소드 에이스", suit: "swords", number: 1, keywordsKo: ["명확성", "새로운 아이디어", "정신적 돌파"] },
+            { id: "swords-02", name: "Two of Swords", nameKo: "소드 2", suit: "swords", number: 2, keywordsKo: ["어려운 선택", "균형", "정체"] },
+            { id: "swords-03", name: "Three of Swords", nameKo: "소드 3", suit: "swords", number: 3, keywordsKo: ["가슴 아픔", "이별", "슬픔"] },
+            { id: "swords-04", name: "Four of Swords", nameKo: "소드 4", suit: "swords", number: 4, keywordsKo: ["휴식", "명상", "정신적 회복"] },
+            { id: "swords-05", name: "Five of Swords", nameKo: "소드 5", suit: "swords", number: 5, keywordsKo: ["갈등", "패배", "자기 이익"] },
+            { id: "swords-06", name: "Six of Swords", nameKo: "소드 6", suit: "swords", number: 6, keywordsKo: ["여행", "전환", "평온한 물"] },
+            { id: "swords-07", name: "Seven of Swords", nameKo: "소드 7", suit: "swords", number: 7, keywordsKo: ["속임수", "전략", "홀로 행동"] },
+            { id: "swords-08", name: "Eight of Swords", nameKo: "소드 8", suit: "swords", number: 8, keywordsKo: ["제한", "함정", "혼란"] },
+            { id: "swords-09", name: "Nine of Swords", nameKo: "소드 9", suit: "swords", number: 9, keywordsKo: ["악몽", "불안", "걱정"] },
+            { id: "swords-10", name: "Ten of Swords", nameKo: "소드 10", suit: "swords", number: 10, keywordsKo: ["고통스러운 끝", "배신", "바닥"] },
+            { id: "swords-page", name: "Page of Swords", nameKo: "소드 시종", suit: "swords", keywordsKo: ["호기심", "경계", "소통"] },
+            { id: "swords-knight", name: "Knight of Swords", nameKo: "소드 기사", suit: "swords", keywordsKo: ["성급함", "행동", "충동"] },
+            { id: "swords-queen", name: "Queen of Swords", nameKo: "소드 여왕", suit: "swords", keywordsKo: ["독립", "솔직함", "명확한 사고"] },
+            { id: "swords-king", name: "King of Swords", nameKo: "소드 왕", suit: "swords", keywordsKo: ["지적 힘", "진실", "권위적인 소통"] }
+        ];
+
+        // 펜타클 수트 (14장)
+        const pentacles = [
+            { id: "pentacles-01", name: "Ace of Pentacles", nameKo: "펜타클 에이스", suit: "pentacles", number: 1, keywordsKo: ["새로운 기회", "물질적 시작", "번영"] },
+            { id: "pentacles-02", name: "Two of Pentacles", nameKo: "펜타클 2", suit: "pentacles", number: 2, keywordsKo: ["균형", "다중 작업", "적응"] },
+            { id: "pentacles-03", name: "Three of Pentacles", nameKo: "펜타클 3", suit: "pentacles", number: 3, keywordsKo: ["팀워크", "협력", "기술"] },
+            { id: "pentacles-04", name: "Four of Pentacles", nameKo: "펜타클 4", suit: "pentacles", number: 4, keywordsKo: ["소유욕", "보안", "통제"] },
+            { id: "pentacles-05", name: "Five of Pentacles", nameKo: "펜타클 5", suit: "pentacles", number: 5, keywordsKo: ["재정적 어려움", "빈곤", "고립"] },
+            { id: "pentacles-06", name: "Six of Pentacles", nameKo: "펜타클 6", suit: "pentacles", number: 6, keywordsKo: ["관대함", "공유", "상호 부조"] },
+            { id: "pentacles-07", name: "Seven of Pentacles", nameKo: "펜타클 7", suit: "pentacles", number: 7, keywordsKo: ["인내", "장기 목표", "투자"] },
+            { id: "pentacles-08", name: "Eight of Pentacles", nameKo: "펜타클 8", suit: "pentacles", number: 8, keywordsKo: ["기술 개발", "근면", "장인 정신"] },
+            { id: "pentacles-09", name: "Nine of Pentacles", nameKo: "펜타클 9", suit: "pentacles", number: 9, keywordsKo: ["독립", "풍요", "자기 의존"] },
+            { id: "pentacles-10", name: "Ten of Pentacles", nameKo: "펜타클 10", suit: "pentacles", number: 10, keywordsKo: ["가족 부", "유산", "완성"] },
+            { id: "pentacles-page", name: "Page of Pentacles", nameKo: "펜타클 시종", suit: "pentacles", keywordsKo: ["학습", "실용성", "새로운 기회"] },
+            { id: "pentacles-knight", name: "Knight of Pentacles", nameKo: "펜타클 기사", suit: "pentacles", keywordsKo: ["신중함", "근면", "현실성"] },
+            { id: "pentacles-queen", name: "Queen of Pentacles", nameKo: "펜타클 여왕", suit: "pentacles", keywordsKo: ["양육", "실용성", "풍요"] },
+            { id: "pentacles-king", name: "King of Pentacles", nameKo: "펜타클 왕", suit: "pentacles", keywordsKo: ["재정적 성공", "관대함", "신뢰성"] }
+        ];
+
+        // 전체 타로카드 덱 (78장)
+        const fullTarotDeck = [...majorArcana, ...cups, ...wands, ...swords, ...pentacles];
+        
+        let currentDeck = [...fullTarotDeck];
+        let selectedCards = [];
+        let shuffleCount = 0;
+
+        // 셔플 함수 (Fisher-Yates 알고리즘)
+        function shuffleDeck() {
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            shuffleCount++;
+            updateStats();
+            showAllCards();
+            console.log('덱이 셔플되었습니다!');
+        }
+
+        // 카드 한 장 뽑기
+        function drawCard() {
+            if (currentDeck.length === 0) {
+                alert('덱에 카드가 없습니다. 덱을 리셋해주세요.');
+                return;
+            }
+            
+            const drawnCard = currentDeck.pop();
+            selectedCards = [drawnCard];
+            showSelectedCards();
+            updateStats();
+        }
+
+        // 카드 3장 뽑기
+        function drawThreeCards() {
+            if (currentDeck.length < 3) {
+                alert('덱에 카드가 부족합니다. 덱을 리셋해주세요.');
+                return;
+            }
+            
+            selectedCards = [];
+            for (let i = 0; i < 3; i++) {
+                selectedCards.push(currentDeck.pop());
+            }
+            showSelectedCards();
+            updateStats();
+        }
+
+        // 덱 리셋
+        function resetDeck() {
+            currentDeck = [...fullTarotDeck];
+            selectedCards = [];
+            shuffleCount = 0;
+            updateStats();
+            hideSelectedCards();
+            showAllCards();
+        }
+
+        // 메이저 아르카나만 보기
+        function showMajorArcana() {
+            displayCards(majorArcana);
+        }
+
+        // 마이너 아르카나만 보기
+        function showMinorArcana() {
+            displayCards([...cups, ...wands, ...swords, ...pentacles]);
+        }
+
+        // 전체 카드 보기
+        function showAllCards() {
+            displayCards(currentDeck);
+        }
+
+        // 선택된 카드 보기
+        function showSelectedCards() {
+            const selectedContainer = document.getElementById('selectedCards');
+            const selectedGrid = document.getElementById('selectedGrid');
+            
+            selectedContainer.style.display = 'block';
+            selectedGrid.innerHTML = '';
+            
+            selectedCards.forEach(card => {
+                const cardElement = createCardElement(card);
+                selectedGrid.appendChild(cardElement);
+            });
+        }
+
+        // 선택된 카드 숨기기
+        function hideSelectedCards() {
+            document.getElementById('selectedCards').style.display = 'none';
+        }
+
+        // 카드 요소 생성
+        function createCardElement(card) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card suit-${card.suit}`;
+            
+            cardDiv.innerHTML = `
+                <div class="card-number">${card.id}</div>
+                <div class="card-name">${card.name}</div>
+                <div class="card-name-ko">${card.nameKo}</div>
+                <div class="card-suit">${card.suit}</div>
+                ${card.number ? `<div style="font-weight: bold; color: #2c3e50;">Number: ${card.number}</div>` : ''}
+                <div class="card-keywords">${card.keywordsKo.join(', ')}</div>
+            `;
+            
+            return cardDiv;
+        }
+
+        // 카드 표시
+        function displayCards(cardsToShow) {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            
+            cardsToShow.forEach(card => {
+                const cardElement = createCardElement(card);
+                grid.appendChild(cardElement);
+            });
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            document.getElementById('totalCards').textContent = currentDeck.length;
+            document.getElementById('majorCount').textContent = currentDeck.filter(card => card.suit === 'major').length;
+            document.getElementById('minorCount').textContent = currentDeck.filter(card => card.suit !== 'major').length;
+            document.getElementById('shuffleCount').textContent = shuffleCount;
+        }
+
+        // 초기 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            showAllCards();
+            updateStats();
+            console.log('SoulCard 타로 덱 테스트 페이지가 로드되었습니다.');
+            console.log(`전체 덱: ${fullTarotDeck.length}장`);
+            console.log(`메이저 아르카나: ${majorArcana.length}장`);
+            console.log(`마이너 아르카나: ${cups.length + wands.length + swords.length + pentacles.length}장`);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 카드 백그라운드 4종 테스트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--figma-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .backgrounds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .background-item {
+            background: var(--figma-gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: var(--figma-card-transition);
+        }
+
+        .background-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--figma-card-glow);
+        }
+
+        .background-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--figma-accent-purple);
+        }
+
+        .card-back-preview {
+            width: 200px;
+            height: 320px;
+            margin: 0 auto 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: var(--figma-card-transition);
+            position: relative;
+        }
+
+        .card-back-preview:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: var(--figma-card-glow);
+        }
+
+        .card-back-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-back-image.error {
+            background: var(--figma-gray-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--figma-gray-400);
+        }
+
+        .background-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .background-path {
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--figma-accent-gold);
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--figma-transition-fast);
+        }
+
+        .background-path:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: var(--figma-gradient-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--figma-transition-normal);
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--figma-card-shadow);
+        }
+
+        .action-button.secondary {
+            background: var(--figma-accent-purple);
+        }
+
+        .usage-section {
+            background: var(--figma-gradient-card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .usage-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--figma-accent-gold);
+        }
+
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .usage-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .usage-item-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--figma-accent-purple);
+        }
+
+        .usage-code {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-found { background: var(--figma-success); }
+        .status-missing { background: var(--figma-error); }
+
+        @media (max-width: 768px) {
+            .backgrounds-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+            .card-back-preview { width: 160px; height: 256px; }
+            .action-buttons { flex-direction: column; }
+            .usage-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🃏 카드 백그라운드 4종</h1>
+            <p class="subtitle">업로드된 카드 뒷면 디자인 확인 및 테스트</p>
+        </div>
+
+        <div class="backgrounds-grid" id="backgroundsGrid">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 사용법 가이드 -->
+        <div class="usage-section">
+            <h3 class="usage-title">💡 카드 백그라운드 활용법</h3>
+            <div class="usage-grid">
+                <div class="usage-item">
+                    <div class="usage-item-title">🎮 React 컴포넌트에서 사용</div>
+                    <div class="usage-code">const cardBack = "/images/backgrounds/01-card-back.webp";
+
+&lt;img src={cardBack} alt="Card Back" /&gt;</div>
+                </div>
+
+                <div class="usage-item">
+                    <div class="usage-item-title">🎨 CSS 배경으로 사용</div>
+                    <div class="usage-code">.card-back {
+  background-image: url('/images/backgrounds/02-card-back.webp');
+  background-size: cover;
+  background-position: center;
+}</div>
+                </div>
+
+                <div class="usage-item">
+                    <div class="usage-item-title">🔄 랜덤 백그라운드 선택</div>
+                    <div class="usage-code">const backgrounds = [
+  '/images/backgrounds/01-card-back.webp',
+  '/images/backgrounds/02-card-back.webp',
+  '/images/backgrounds/03-card-back.webp',
+  '/images/backgrounds/04-card-back.webp'
+];
+
+const randomBg = backgrounds[Math.floor(Math.random() * 4)];</div>
+                </div>
+
+                <div class="usage-item">
+                    <div class="usage-item-title">🎯 카드 플립 애니메이션</div>
+                    <div class="usage-code">.card.flipped .card-front {
+  transform: rotateY(180deg);
+}
+
+.card.flipped .card-back {
+  transform: rotateY(0deg);
+  background-image: url('/images/backgrounds/01-card-back.webp');
+}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 확대 모달 -->
+    <div id="imageModal" class="modal">
+        <img id="modalImage" class="modal-content" alt="Background Image">
+    </div>
+
+    <script>
+        // 카드 백그라운드 정의
+        const cardBackgrounds = [
+            {
+                id: 1,
+                name: "클래식 디자인",
+                description: "전통적인 타로 카드 뒷면 스타일",
+                path: "/images/backgrounds/01-card-back.webp",
+                usage: "기본 카드 뒷면으로 사용"
+            },
+            {
+                id: 2,
+                name: "모던 패턴",
+                description: "현대적이고 세련된 패턴 디자인",
+                path: "/images/backgrounds/02-card-back.webp",
+                usage: "스타일리시한 UI에 적합"
+            },
+            {
+                id: 3,
+                name: "미스틱 스타일",
+                description: "신비롭고 마법적인 분위기",
+                path: "/images/backgrounds/03-card-back.webp",
+                usage: "특별한 이벤트나 프리미엄 카드용"
+            },
+            {
+                id: 4,
+                name: "엘레간트 룩",
+                description: "우아하고 고급스러운 디자인",
+                path: "/images/backgrounds/04-card-back.webp",
+                usage: "브랜딩이나 프로페셔널 용도"
+            }
+        ];
+
+        // 이미지 존재 확인
+        async function checkImageExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        // 백그라운드 아이템 생성
+        async function createBackgroundItem(background) {
+            const exists = await checkImageExists(background.path);
+            
+            const item = document.createElement('div');
+            item.className = 'background-item';
+            
+            item.innerHTML = `
+                <h3 class="background-title">
+                    <span class="status-indicator ${exists ? 'status-found' : 'status-missing'}"></span>
+                    ${background.name}
+                </h3>
+                
+                <div class="card-back-preview" onclick="showModal('${background.path}')">
+                    ${exists ? 
+                        `<img src="${background.path}" alt="${background.name}" class="card-back-image" loading="lazy">` :
+                        `<div class="card-back-image error">🃏</div>`
+                    }
+                </div>
+                
+                <div class="background-info">${background.description}</div>
+                <div class="background-path" onclick="copyToClipboard('${background.path}')">${background.path}</div>
+                
+                <div class="action-buttons">
+                    <button class="action-button" onclick="copyToClipboard('${background.path}')">📋 경로 복사</button>
+                    <button class="action-button secondary" onclick="downloadImage('${background.path}', '${background.name}')">💾 다운로드</button>
+                    <button class="action-button" onclick="previewAsCardBack('${background.path}')">🔄 미리보기</button>
+                </div>
+                
+                <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+                    💡 ${background.usage}
+                </div>
+            `;
+            
+            return item;
+        }
+
+        // 클립보드 복사
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification(`복사됨: ${text}`, 'success');
+            });
+        }
+
+        // 이미지 다운로드
+        function downloadImage(imagePath, name) {
+            const link = document.createElement('a');
+            link.href = imagePath;
+            link.download = `${name.replace(/\s+/g, '-')}-card-back.webp`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification(`${name} 다운로드 시작!`, 'success');
+        }
+
+        // 카드 뒷면으로 미리보기
+        function previewAsCardBack(imagePath) {
+            // 새 창에서 카드 뒷면 미리보기
+            const previewWindow = window.open('', '_blank', 'width=400,height=600');
+            previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Card Back Preview</title>
+                    <style>
+                        body { 
+                            margin: 0; 
+                            padding: 20px; 
+                            background: #1a1a2e; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            min-height: 100vh;
+                        }
+                        .card { 
+                            width: 250px; 
+                            height: 400px; 
+                            border-radius: 12px; 
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                            background-image: url('${imagePath}');
+                            background-size: cover;
+                            background-position: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="card"></div>
+                </body>
+                </html>
+            `);
+        }
+
+        // 모달 표시
+        function showModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageSrc;
+            modal.classList.add('active');
+        }
+
+        // 모달 닫기
+        document.getElementById('imageModal').addEventListener('click', () => {
+            document.getElementById('imageModal').classList.remove('active');
+        });
+
+        // 알림 표시
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--figma-success)' : 'var(--figma-info)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 페이지 로드
+        async function loadBackgrounds() {
+            const grid = document.getElementById('backgroundsGrid');
+            
+            for (const background of cardBackgrounds) {
+                const item = await createBackgroundItem(background);
+                grid.appendChild(item);
+            }
+        }
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 페이지 로드 시 실행
+        window.addEventListener('load', loadBackgrounds);
+    </script>
+</body>
+</html>

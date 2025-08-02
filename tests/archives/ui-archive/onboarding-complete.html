@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard - Complete Onboarding</title>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@11.0.24/dist/framer-motion.js"></script>
+    
+    <!-- Figma Design System CSS -->
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+        }
+        
+        .onboarding-app {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--figma-gradient-dark);
+            overflow: hidden;
+        }
+        
+        /* 데스크톱에서만 모바일 프레임 효과 */
+        @media (min-width: 1024px) {
+            .onboarding-app {
+                max-width: 393px;
+                margin: 20px auto;
+                border: 3px solid #333;
+                border-radius: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                min-height: 852px;
+                max-height: 90vh;
+            }
+        }
+        
+        /* 애니메이션 키프레임 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse-wave {
+            0% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .twinkle-animation {
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        .orbit-animation {
+            animation: orbit 15s linear infinite;
+        }
+        
+        .pulse-wave {
+            animation: pulse-wave 2s ease-out infinite;
+        }
+        
+        .ring-animation {
+            animation: ring 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { motion, AnimatePresence } = Motion;
+        
+        // Icon Components
+        const ArrowLeft = () => <span style={{fontSize: '20px'}}>←</span>;
+        const ArrowRight = () => <span style={{fontSize: '20px'}}>→</span>;
+        const Bell = () => <span style={{fontSize: '24px'}}>🔔</span>;
+        const Heart = () => <span style={{fontSize: '24px'}}>💖</span>;
+        const Sparkles = () => <span style={{fontSize: '24px'}}>✨</span>;
+        const Star = () => <span style={{fontSize: '16px'}}>⭐</span>;
+        const Briefcase = () => <span style={{fontSize: '24px'}}>💼</span>;
+        const DollarSign = () => <span style={{fontSize: '24px'}}>💰</span>;
+        const HeartPulse = () => <span style={{fontSize: '24px'}}>❤️‍🩹</span>;
+        const Check = () => <span style={{fontSize: '24px'}}>✅</span>;
+
+        // Floating Stars Background Component
+        function FloatingStars({ count = 20 }) {
+            const [stars, setStars] = useState([]);
+            
+            useEffect(() => {
+                const starArray = Array.from({ length: count }, (_, i) => ({
+                    id: i,
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    delay: Math.random() * 3,
+                    size: Math.random() * 8 + 4
+                }));
+                setStars(starArray);
+            }, [count]);
+            
+            return (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {stars.map(star => (
+                        <div
+                            key={star.id}
+                            className="absolute twinkle-animation"
+                            style={{
+                                left: `${star.x}%`,
+                                top: `${star.y}%`,
+                                animationDelay: `${star.delay}s`,
+                                fontSize: `${star.size}px`
+                            }}
+                        >
+                            ⭐
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Progress Dots Component
+        function ProgressDots({ currentStep, totalSteps }) {
+            return (
+                <div className="flex justify-center gap-2 mb-6">
+                    {Array.from({ length: totalSteps }, (_, i) => (
+                        <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                i <= currentStep 
+                                    ? 'bg-figma-primary-400' 
+                                    : 'bg-white bg-opacity-30'
+                            }`}
+                        />
+                    ))}
+                </div>
+            );
+        }
+
+        // Step 1: Splash Screen
+        function SplashScreen({ onComplete }) {
+            const [progress, setProgress] = useState(0);
+            
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setProgress(prev => {
+                        if (prev >= 100) {
+                            clearInterval(interval);
+                            setTimeout(onComplete, 500);
+                            return 100;
+                        }
+                        return prev + 2;
+                    });
+                }, 60);
+                
+                return () => clearInterval(interval);
+            }, [onComplete]);
+            
+            return (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="relative h-screen flex flex-col items-center justify-center bg-gradient-dark text-white"
+                >
+                    <FloatingStars count={15} />
+                    
+                    {/* Logo */}
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="relative mb-8"
+                    >
+                        <div className="text-8xl orbit-animation">🔮</div>
+                        <div className="absolute inset-0 orbit-animation" style={{animationDirection: 'reverse', animationDuration: '20s'}}>
+                            <div className="text-2xl absolute -top-4 left-1/2 transform -translate-x-1/2">✨</div>
+                            <div className="text-2xl absolute top-1/2 -right-4 transform -translate-y-1/2">✨</div>
+                            <div className="text-2xl absolute -bottom-4 left-1/2 transform -translate-x-1/2">✨</div>
+                            <div className="text-2xl absolute top-1/2 -left-4 transform -translate-y-1/2">✨</div>
+                        </div>
+                    </motion.div>
+                    
+                    {/* Title */}
+                    <motion.div
+                        initial={{ y: 30, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.8 }}
+                        className="text-center mb-12"
+                    >
+                        <h1 className="text-4xl font-bold mb-2" style={{
+                            background: 'linear-gradient(135deg, #a855f7, #ec4899, #f59e0b)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                        }}>
+                            SoulCard
+                        </h1>
+                        <p className="text-lg opacity-80">AI 영혼 타로카드</p>
+                    </motion.div>
+                    
+                    {/* Progress Bar */}
+                    <motion.div
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: 200, opacity: 1 }}
+                        transition={{ delay: 1, duration: 0.5 }}
+                        className="w-48 h-1 bg-white bg-opacity-20 rounded-full overflow-hidden"
+                    >
+                        <div 
+                            className="h-full bg-gradient-to-r from-figma-primary-400 to-figma-accent-purple transition-all duration-100"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </motion.div>
+                    
+                    {/* Loading Text */}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 }}
+                        className="mt-4 text-sm opacity-60"
+                    >
+                        마법을 준비하는 중... {Math.round(progress)}%
+                    </motion.p>
+                </motion.div>
+            );
+        }
+
+        // Step 2: Welcome Step
+        function WelcomeStep({ onNext, onSkip }) {
+            return (
+                <motion.div
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    className="relative h-screen flex flex-col bg-gradient-dark text-white"
+                >
+                    <FloatingStars count={10} />
+                    
+                    {/* Skip Button */}
+                    <div className="absolute top-6 right-6 z-10">
+                        <button 
+                            onClick={onSkip}
+                            className="text-white opacity-60 hover:opacity-100 transition-opacity text-sm"
+                        >
+                            건너뛰기
+                        </button>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col items-center justify-center px-8">
+                        {/* Mystical Illustration */}
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="relative mb-8"
+                        >
+                            {/* Central Crystal Ball */}
+                            <div className="text-6xl float-animation">🔮</div>
+                            
+                            {/* Orbiting Tarot Cards */}
+                            <div className="absolute inset-0 orbit-animation" style={{animationDuration: '15s'}}>
+                                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xl">🃏</div>
+                                <div className="absolute top-0 -right-8 transform -translate-y-1/2 text-xl">🃏</div>
+                                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xl">🃏</div>
+                                <div className="absolute top-0 -left-8 transform -translate-y-1/2 text-xl">🃏</div>
+                            </div>
+                            
+                            {/* Energy Waves */}
+                            {[1, 2, 3].map(i => (
+                                <div
+                                    key={i}
+                                    className="absolute inset-0 rounded-full border border-figma-primary-400 pulse-wave"
+                                    style={{
+                                        animationDelay: `${i * 0.7}s`,
+                                        width: '120px',
+                                        height: '120px',
+                                        left: '50%',
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)'
+                                    }}
+                                />
+                            ))}
+                        </motion.div>
+                        
+                        {/* Title & Description */}
+                        <motion.div
+                            initial={{ y: 30, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.6, duration: 0.8 }}
+                            className="text-center mb-8"
+                        >
+                            <h1 className="text-3xl font-bold mb-4">
+                                🌟 환영합니다
+                            </h1>
+                            <p className="text-lg opacity-80 leading-relaxed">
+                                AI가 읽어주는<br/>
+                                당신만의 특별한 타로카드
+                            </p>
+                        </motion.div>
+                        
+                        {/* Feature Highlights */}
+                        <motion.div
+                            initial={{ y: 30, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.9, duration: 0.8 }}
+                            className="space-y-4 mb-8"
+                        >
+                            {[
+                                { icon: '🤖', text: 'AI 맞춤 해석' },
+                                { icon: '💫', text: '개인화된 조언' },
+                                { icon: '⚡', text: '즉시 답변' }
+                            ].map((feature, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 1.2 + index * 0.2 }}
+                                    className="flex items-center gap-3"
+                                >
+                                    <span className="text-2xl">{feature.icon}</span>
+                                    <span className="text-white opacity-80">{feature.text}</span>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </div>
+                    
+                    {/* Bottom Navigation */}
+                    <div className="p-6">
+                        <ProgressDots currentStep={0} totalSteps={3} />
+                        <button 
+                            onClick={onNext}
+                            className="btn-primary w-full py-4 text-lg"
+                        >
+                            시작하기 ✨
+                        </button>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Step 3: Feature Step
+        function FeatureStep({ onNext, onBack, onSkip }) {
+            const features = [
+                {
+                    icon: '💖',
+                    title: '연애운',
+                    description: '사랑에 대한 깊은 통찰',
+                    gradient: 'from-pink-500 to-rose-400'
+                },
+                {
+                    icon: '💼',
+                    title: '직업운',
+                    description: '커리어 발전을 위한 조언',
+                    gradient: 'from-blue-500 to-cyan-400'
+                },
+                {
+                    icon: '💰',
+                    title: '재물운',
+                    description: '금전적 성공의 비밀',
+                    gradient: 'from-green-500 to-emerald-400'
+                },
+                {
+                    icon: '❤️‍🩹',
+                    title: '건강운',
+                    description: '몸과 마음의 균형',
+                    gradient: 'from-red-500 to-orange-400'
+                }
+            ];
+            
+            return (
+                <motion.div
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    className="relative h-screen flex flex-col bg-gradient-dark text-white"
+                >
+                    <FloatingStars count={8} />
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6">
+                        <button 
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition-all"
+                        >
+                            <ArrowLeft />
+                        </button>
+                        <button 
+                            onClick={onSkip}
+                            className="text-white opacity-60 hover:opacity-100 transition-opacity text-sm"
+                        >
+                            건너뛰기
+                        </button>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 px-6">
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-center mb-8"
+                        >
+                            <h1 className="text-2xl font-bold mb-3">
+                                🔮 다양한 상담 영역
+                            </h1>
+                            <p className="text-white opacity-70">
+                                AI가 분석하는 당신의 운세
+                            </p>
+                        </motion.div>
+                        
+                        {/* Feature Grid */}
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            {features.map((feature, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.6 + index * 0.1 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    className={`p-4 rounded-xl bg-gradient-to-br ${feature.gradient} bg-opacity-20 border border-white border-opacity-10 hover:border-opacity-30 transition-all cursor-pointer`}
+                                >
+                                    <div className="text-3xl mb-2">{feature.icon}</div>
+                                    <h3 className="font-semibold mb-1">{feature.title}</h3>
+                                    <p className="text-xs opacity-80">{feature.description}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                        
+                        {/* Highlight Features */}
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1 }}
+                            className="space-y-3"
+                        >
+                            {[
+                                '실시간 AI 해석',
+                                '개인 맞춤 조언',
+                                '무제한 질문'
+                            ].map((text, index) => (
+                                <div key={index} className="flex items-center gap-3">
+                                    <Check />
+                                    <span className="text-white opacity-80">{text}</span>
+                                </div>
+                            ))}
+                        </motion.div>
+                    </div>
+                    
+                    {/* Bottom Navigation */}
+                    <div className="p-6">
+                        <ProgressDots currentStep={1} totalSteps={3} />
+                        <button 
+                            onClick={onNext}
+                            className="btn-primary w-full py-4 text-lg"
+                        >
+                            다음 단계로
+                        </button>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Step 4: Notification Step
+        function NotificationStep({ onAllow, onLater, onBack }) {
+            const benefits = [
+                { icon: '🌅', text: '매일 오전 9시 운세 알림', time: '09:00' },
+                { icon: '🤔', text: '중요한 결정이 필요할 때', time: '필요시' },
+                { icon: '😌', text: '스트레스 해소 메시지', time: '저녁' },
+                { icon: '🎉', text: '특별한 날 축하 카드', time: '기념일' }
+            ];
+            
+            return (
+                <motion.div
+                    initial={{ x: 100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    className="relative h-screen flex flex-col bg-gradient-dark text-white"
+                >
+                    <FloatingStars count={6} />
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6">
+                        <button 
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition-all"
+                        >
+                            <ArrowLeft />
+                        </button>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 px-6">
+                        {/* Bell Animation */}
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-center mb-8"
+                        >
+                            <div className="relative inline-block">
+                                <div className="text-6xl ring-animation">🔔</div>
+                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold pulse-wave">
+                                    1
+                                </div>
+                                
+                                {/* Ripple Effects */}
+                                {[1, 2, 3].map(i => (
+                                    <div
+                                        key={i}
+                                        className="absolute inset-0 rounded-full border border-figma-primary-400 pulse-wave"
+                                        style={{
+                                            animationDelay: `${i * 0.5}s`,
+                                            width: '80px',
+                                            height: '80px',
+                                            left: '50%',
+                                            top: '50%',
+                                            transform: 'translate(-50%, -50%)'
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </motion.div>
+                        
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.6 }}
+                            className="text-center mb-8"
+                        >
+                            <h1 className="text-2xl font-bold mb-3">
+                                🌟 알림 설정
+                            </h1>
+                            <p className="text-white opacity-70">
+                                소중한 순간을 놓치지 마세요
+                            </p>
+                        </motion.div>
+                        
+                        {/* Mock Notification */}
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                            className="bg-white bg-opacity-10 rounded-lg p-4 mb-6 border border-white border-opacity-20"
+                        >
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 rounded bg-figma-primary-500 flex items-center justify-center text-lg">
+                                    🔮
+                                </div>
+                                <div>
+                                    <p className="font-medium text-sm">SoulCard</p>
+                                    <p className="text-xs opacity-60">지금</p>
+                                </div>
+                            </div>
+                            <p className="text-sm opacity-80">
+                                ✨ 오늘의 타로: "The Star" - 희망과 영감이 당신을 기다립니다!
+                            </p>
+                        </motion.div>
+                        
+                        {/* Benefits */}
+                        <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1 }}
+                            className="space-y-3 mb-8"
+                        >
+                            {benefits.map((benefit, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 1.2 + index * 0.1 }}
+                                    className="flex items-center justify-between"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xl">{benefit.icon}</span>
+                                        <span className="text-sm opacity-80">{benefit.text}</span>
+                                    </div>
+                                    <span className="text-xs opacity-60">{benefit.time}</span>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </div>
+                    
+                    {/* Bottom Navigation */}
+                    <div className="p-6 space-y-3">
+                        <ProgressDots currentStep={2} totalSteps={3} />
+                        <button 
+                            onClick={onAllow}
+                            className="btn-primary w-full py-4 text-lg"
+                        >
+                            알림 허용 🔔
+                        </button>
+                        <button 
+                            onClick={onLater}
+                            className="w-full py-3 text-white opacity-70 hover:opacity-100 transition-opacity"
+                        >
+                            나중에 설정
+                        </button>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Complete Step
+        function CompleteStep({ onComplete }) {
+            return (
+                <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 1.1, opacity: 0 }}
+                    className="relative h-screen flex flex-col items-center justify-center bg-gradient-dark text-white"
+                >
+                    <FloatingStars count={25} />
+                    
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="text-center"
+                    >
+                        <div className="text-8xl mb-6 float-animation">🎉</div>
+                        <h1 className="text-3xl font-bold mb-4">준비 완료!</h1>
+                        <p className="text-lg opacity-80 mb-8">
+                            이제 AI 타로카드 여행을<br/>
+                            시작할 수 있습니다
+                        </p>
+                        
+                        <motion.button
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 1 }}
+                            onClick={onComplete}
+                            className="btn-primary px-8 py-4 text-lg"
+                        >
+                            타로 시작하기 ✨
+                        </motion.button>
+                    </motion.div>
+                </motion.div>
+            );
+        }
+
+        // Main Onboarding Flow Component
+        function OnboardingFlow() {
+            const [currentStep, setCurrentStep] = useState('splash');
+            const [isTransitioning, setIsTransitioning] = useState(false);
+            
+            const transitionTo = (nextStep) => {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                    setCurrentStep(nextStep);
+                    setIsTransitioning(false);
+                }, 300);
+            };
+            
+            const handlePermissions = async () => {
+                try {
+                    if ("Notification" in window) {
+                        const permission = await Notification.requestPermission();
+                        console.log('Notification permission:', permission);
+                    }
+                } catch (error) {
+                    console.log('Notification not supported');
+                }
+                transitionTo('complete');
+            };
+            
+            const renderStep = () => {
+                switch(currentStep) {
+                    case 'splash':
+                        return <SplashScreen onComplete={() => transitionTo('welcome')} />;
+                    case 'welcome':
+                        return (
+                            <WelcomeStep 
+                                onNext={() => transitionTo('features')}
+                                onSkip={() => transitionTo('complete')}
+                            />
+                        );
+                    case 'features':
+                        return (
+                            <FeatureStep 
+                                onNext={() => transitionTo('notifications')}
+                                onBack={() => transitionTo('welcome')}
+                                onSkip={() => transitionTo('complete')}
+                            />
+                        );
+                    case 'notifications':
+                        return (
+                            <NotificationStep 
+                                onAllow={handlePermissions}
+                                onLater={() => transitionTo('complete')}
+                                onBack={() => transitionTo('features')}
+                            />
+                        );
+                    case 'complete':
+                        return (
+                            <CompleteStep 
+                                onComplete={() => {
+                                    localStorage.setItem('onboarding_completed', 'true');
+                                    alert('온보딩 완료! 메인 앱으로 이동합니다.');
+                                }}
+                            />
+                        );
+                    default:
+                        return <SplashScreen onComplete={() => transitionTo('welcome')} />;
+                }
+            };
+            
+            return (
+                <div className="onboarding-app figma-design">
+                    <AnimatePresence mode="wait">
+                        {renderStep()}
+                    </AnimatePresence>
+                    
+                    {/* Transition Overlay */}
+                    {isTransitioning && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                        >
+                            <div className="w-8 h-8 border-2 border-figma-primary-400 border-t-transparent rounded-full animate-spin" />
+                        </motion.div>
+                    )}
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<OnboardingFlow />, document.getElementById('app'));
+    </script>
+</body>
+</html>

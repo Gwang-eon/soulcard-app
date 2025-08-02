@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard - Tarot App Test</title>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@11.0.24/dist/framer-motion.js"></script>
+    
+    <!-- Figma Design System CSS -->
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .tarot-app {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--figma-gradient-dark);
+        }
+        
+        /* 데스크톱에서만 모바일 프레임 효과 */
+        @media (min-width: 1024px) {
+            .tarot-app {
+                max-width: 393px;
+                margin: 20px auto;
+                border: 3px solid #333;
+                border-radius: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                min-height: 852px;
+                max-height: 90vh;
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body style="background: linear-gradient(135deg, #1e1e2e 0%, #2d3748 50%, #1a202c 100%);">
+    <div id="app"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { motion } = Motion;
+        
+        // Simple Icon Components
+        const ArrowLeft = () => <span>←</span>;
+        const Play = () => <span>▶️</span>;
+        const Home = () => <span>🏠</span>;
+        const Settings = () => <span>⚙️</span>;
+        const User = () => <span>👤</span>;
+        const Heart = () => <span>💖</span>;
+        const Sparkles = () => <span>✨</span>;
+        const CreditCard = () => <span>💳</span>;
+        const Menu = () => <span>☰</span>;
+        
+        // Navigation Component
+        function NavigationBar({ activeTab, onTabChange }) {
+            const tabs = [
+                { id: 'home', icon: Home, label: '홈' },
+                { id: 'consultation', icon: Heart, label: '상담' },
+                { id: 'tokens', icon: CreditCard, label: '토큰' },
+                { id: 'profile', icon: User, label: '프로필' }
+            ];
+            
+            return (
+                <div className="fixed bottom-0 left-0 right-0 bg-figma-dark-bg-secondary border-t border-white border-opacity-20">
+                    <div className="flex justify-around py-2">
+                        {tabs.map(tab => {
+                            const IconComponent = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => onTabChange(tab.id)}
+                                    className="flex flex-col items-center justify-center py-2 px-4 min-w-0 flex-1 transition-all"
+                                    style={{
+                                        color: isActive ? '#818cf8' : 'rgba(255, 255, 255, 0.6)'
+                                    }}
+                                >
+                                    <IconComponent />
+                                    <span className="text-xs mt-1">{tab.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+        
+        // Home Page Component
+        function HomePage() {
+            return (
+                <div className="min-h-screen bg-gradient-dark pb-20">
+                        {/* Header */}
+                        <div className="bg-figma-dark-bg-secondary p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h1 className="text-white text-xl font-bold">안녕하세요!</h1>
+                                    <p className="text-white opacity-70 text-sm">오늘의 타로를 확인해보세요</p>
+                                </div>
+                                <button className="w-10 h-10 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                                    <Settings />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Daily Card */}
+                        <div className="p-6">
+                            <div className="card-container mb-6">
+                                <h2 className="text-white font-semibold mb-4">📅 오늘의 카드</h2>
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="w-32 h-48 bg-gradient-primary rounded-xl flex items-center justify-center text-4xl">
+                                        🔮
+                                    </div>
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="text-white font-medium mb-2">The Star</h3>
+                                    <p className="text-white opacity-70 text-sm">희망과 영감의 메시지를 전합니다</p>
+                                </div>
+                            </div>
+                            
+                            {/* Quick Menu */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <button className="card-container p-4 text-left hover:scale-105 transition-transform">
+                                    <div className="text-2xl mb-2">💕</div>
+                                    <h3 className="text-white font-medium text-sm">연애운</h3>
+                                    <p className="text-white opacity-60 text-xs">사랑에 대한 조언</p>
+                                </button>
+                                <button className="card-container p-4 text-left hover:scale-105 transition-transform">
+                                    <div className="text-2xl mb-2">💼</div>
+                                    <h3 className="text-white font-medium text-sm">직업운</h3>
+                                    <p className="text-white opacity-60 text-xs">커리어 가이드</p>
+                                </button>
+                                <button className="card-container p-4 text-left hover:scale-105 transition-transform">
+                                    <div className="text-2xl mb-2">💰</div>
+                                    <h3 className="text-white font-medium text-sm">재물운</h3>
+                                    <p className="text-white opacity-60 text-xs">금전적 조언</p>
+                                </button>
+                                <button className="card-container p-4 text-left hover:scale-105 transition-transform">
+                                    <div className="text-2xl mb-2">🌟</div>
+                                    <h3 className="text-white font-medium text-sm">종합운</h3>
+                                    <p className="text-white opacity-60 text-xs">전반적인 운세</p>
+                                </button>
+                            </div>
+                        </div>
+                </div>
+            );
+        }
+        
+        // Consultation Page Component
+        function ConsultationPage() {
+            const [selectedSpread, setSelectedSpread] = useState(null);
+            
+            const spreads = [
+                { id: 'single', name: '단일 카드', description: '간단한 질문에 대한 답변', emoji: '🃏' },
+                { id: 'three', name: '3카드 스프레드', description: '과거, 현재, 미래', emoji: '🃏🃏🃏' },
+                { id: 'celtic', name: '켈틱 크로스', description: '종합적인 상황 분석', emoji: '✝️' }
+            ];
+            
+            return (
+                <div className="min-h-screen bg-gradient-dark pb-20">
+                        <div className="p-6">
+                            <h1 className="text-white text-2xl font-bold mb-2">타로 상담</h1>
+                            <p className="text-white opacity-70 text-sm mb-6">원하는 스프레드를 선택하세요</p>
+                            
+                            <div className="space-y-4">
+                                {spreads.map(spread => (
+                                    <button
+                                        key={spread.id}
+                                        onClick={() => setSelectedSpread(spread.id)}
+                                        className={`w-full card-container p-6 text-left transition-all ${
+                                            selectedSpread === spread.id 
+                                                ? 'border-figma-primary-400 bg-figma-primary-500 bg-opacity-20' 
+                                                : 'hover:bg-white hover:bg-opacity-5'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-3xl">{spread.emoji}</div>
+                                            <div className="flex-1">
+                                                <h3 className="text-white font-semibold mb-1">{spread.name}</h3>
+                                                <p className="text-white opacity-70 text-sm">{spread.description}</p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                            
+                            {selectedSpread && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-6"
+                                >
+                                    <button className="btn-primary w-full py-4">
+                                        상담 시작하기
+                                    </button>
+                                </motion.div>
+                            )}
+                        </div>
+                </div>
+            );
+        }
+        
+        // Token Page Component
+        function TokenPage() {
+            return (
+                <div className="min-h-screen bg-gradient-dark pb-20">
+                        <div className="p-6">
+                            <h1 className="text-white text-2xl font-bold mb-2">토큰 관리</h1>
+                            <p className="text-white opacity-70 text-sm mb-6">타로 상담을 위한 토큰을 구매하세요</p>
+                            
+                            {/* Current Balance */}
+                            <div className="card-container mb-6 text-center">
+                                <h2 className="text-white font-semibold mb-2">보유 토큰</h2>
+                                <div className="text-4xl font-bold mb-2" style={{color: '#818cf8'}}>12</div>
+                                <p className="text-white opacity-70 text-sm">개</p>
+                            </div>
+                            
+                            {/* Token Packages */}
+                            <div className="space-y-4">
+                                {[
+                                    { tokens: 5, price: '₩5,000', bonus: '' },
+                                    { tokens: 15, price: '₩14,000', bonus: '+3 보너스' },
+                                    { tokens: 30, price: '₩25,000', bonus: '+10 보너스' }
+                                ].map((pkg, index) => (
+                                    <div key={index} className="card-container p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-white font-semibold">{pkg.tokens}개 토큰</h3>
+                                                {pkg.bonus && (
+                                                    <p className="text-sm font-medium" style={{color: '#10b981'}}>{pkg.bonus}</p>
+                                                )}
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-white font-bold">{pkg.price}</div>
+                                                <button className="btn-primary px-4 py-2 text-sm mt-2">
+                                                    구매
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                </div>
+            );
+        }
+        
+        // Profile Page Component
+        function ProfilePage() {
+            return (
+                <div className="min-h-screen bg-gradient-dark pb-20">
+                        <div className="p-6">
+                            {/* Profile Header */}
+                            <div className="card-container mb-6 text-center">
+                                <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                                    👤
+                                </div>
+                                <h2 className="text-white font-bold text-lg mb-1">타로 마스터</h2>
+                                <p className="text-white opacity-70 text-sm">soulcard@example.com</p>
+                            </div>
+                            
+                            {/* Menu Items */}
+                            <div className="space-y-2">
+                                {[
+                                    { icon: '📊', label: '상담 기록', count: '23회' },
+                                    { icon: '⭐', label: '즐겨찾기', count: '5개' },
+                                    { icon: '🔔', label: '알림 설정', count: '' },
+                                    { icon: '🎨', label: '테마 설정', count: '' },
+                                    { icon: '❓', label: '도움말', count: '' },
+                                    { icon: '📧', label: '문의하기', count: '' }
+                                ].map((item, index) => (
+                                    <button key={index} className="w-full card-container p-4 flex items-center justify-between hover:bg-white hover:bg-opacity-5 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xl">{item.icon}</span>
+                                            <span className="text-white font-medium">{item.label}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {item.count && (
+                                                <span className="text-white opacity-60 text-sm">{item.count}</span>
+                                            )}
+                                            <span className="text-white opacity-40">›</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                </div>
+            );
+        }
+        
+        // Main App Component
+        function TarotApp() {
+            const [activeTab, setActiveTab] = useState('home');
+            
+            const renderPage = () => {
+                switch(activeTab) {
+                    case 'home': return <HomePage />;
+                    case 'consultation': return <ConsultationPage />;
+                    case 'tokens': return <TokenPage />;
+                    case 'profile': return <ProfilePage />;
+                    default: return <HomePage />;
+                }
+            };
+            
+            return (
+                <div className="tarot-app figma-design">
+                    {renderPage()}
+                    <NavigationBar activeTab={activeTab} onTabChange={setActiveTab} />
+                </div>
+            );
+        }
+        
+        // Demo App with Controls
+        function App() {
+            const [showDemo, setShowDemo] = useState(false);
+            
+            if (showDemo) {
+                return <TarotApp />;
+            }
+            
+            return (
+                <div className="tarot-app figma-design min-h-screen bg-gradient-dark flex items-center justify-center p-6">
+                        <div className="text-center max-w-md">
+                            <div className="text-6xl mb-6">🔮</div>
+                            <h1 className="text-white text-3xl font-bold mb-4">SoulCard AI</h1>
+                            <p className="text-white opacity-70 mb-8">
+                                Figma 디자인 시스템이 적용된<br/>
+                                AI 타로카드 앱을 체험해보세요
+                            </p>
+                            <button 
+                                onClick={() => setShowDemo(true)}
+                                className="btn-primary px-8 py-4 text-lg"
+                            >
+                                앱 체험하기
+                            </button>
+                        </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('app'));
+    </script>
+</body>
+</html>

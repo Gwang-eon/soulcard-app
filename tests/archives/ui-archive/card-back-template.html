@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 타로카드 뒷면 템플릿 디자인</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--figma-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .template-section {
+            background: var(--figma-gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .template-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--figma-accent-purple);
+        }
+
+        .card-back {
+            width: 200px;
+            height: 320px;
+            margin: 0 auto 20px;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--figma-card-transition);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-back:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: var(--figma-card-glow);
+        }
+
+        /* 템플릿 1: 클래식 패턴 */
+        .template-1 {
+            background: var(--figma-gradient-primary);
+            border: 3px solid var(--figma-accent-gold);
+        }
+
+        .template-1::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+
+        .template-1::after {
+            content: '🔮';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 템플릿 2: 미스틱 스타일 */
+        .template-2 {
+            background: radial-gradient(circle at center, var(--figma-dark-bg-secondary) 0%, var(--figma-dark-bg-primary) 100%);
+            border: 3px solid var(--figma-accent-purple);
+            overflow: hidden;
+        }
+
+        .template-2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+        }
+
+        .template-2::after {
+            content: '✨⭐✨';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            letter-spacing: 10px;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        /* 템플릿 3: 기하학적 패턴 */
+        .template-3 {
+            background: var(--figma-gradient-accent);
+            border: 3px solid var(--figma-accent-pink);
+            position: relative;
+        }
+
+        .template-3::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%),
+                linear-gradient(-45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            background-size: 40px 40px;
+        }
+
+        .template-3::after {
+            content: '◆';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            font-size: 5rem;
+            color: rgba(255, 255, 255, 0.8);
+            animation: rotate 10s linear infinite;
+        }
+
+        /* 템플릿 4: SoulCard 브랜딩 */
+        .template-4 {
+            background: var(--figma-gradient-dark);
+            border: 3px solid var(--figma-accent-gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .template-4 .logo {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .template-4 .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--figma-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .template-4 .tagline {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* 템플릿 5: 아트 데코 */
+        .template-5 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            border: 3px solid var(--figma-accent-purple);
+            position: relative;
+        }
+
+        .template-5::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 6px;
+        }
+
+        .template-5::after {
+            content: '⚡';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem;
+            color: var(--figma-accent-gold);
+            filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.7));
+        }
+
+        /* 템플릿 6: 심플 엘레간트 */
+        .template-6 {
+            background: var(--figma-gradient-light);
+            border: 3px solid var(--figma-gray-600);
+            color: var(--figma-dark-bg-primary);
+        }
+
+        .template-6::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+            border: 2px solid rgba(75, 85, 99, 0.3);
+            border-radius: 8px;
+        }
+
+        .template-6::after {
+            content: '🌙';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            filter: grayscale(0.3);
+        }
+
+        .download-section {
+            background: var(--figma-gradient-card);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .download-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--figma-accent-gold);
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .download-button {
+            background: var(--figma-gradient-primary);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--figma-transition-normal);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--figma-card-shadow);
+        }
+
+        .specs-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .specs-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--figma-accent-purple);
+        }
+
+        .specs-list {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+
+        /* 애니메이션 */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(45deg); }
+            to { transform: translate(-50%, -50%) rotate(405deg); }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2rem; }
+            .templates-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; }
+            .card-back { width: 160px; height: 256px; }
+            .template-4 { padding: 20px; }
+            .template-4 .logo { font-size: 2.5rem; }
+            .template-4 .brand-name { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🃏 타로카드 뒷면 템플릿</h1>
+            <p class="subtitle">SoulCard용 카드 뒷면 디자인 템플릿 모음</p>
+        </div>
+
+        <div class="templates-grid">
+            <!-- 템플릿 1: 클래식 -->
+            <div class="template-section">
+                <h3 class="template-title">클래식 크리스탈</h3>
+                <div class="card-back template-1" onclick="selectTemplate(1)"></div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">전통적인 타로 스타일<br>신비로운 크리스탈볼 중심</p>
+            </div>
+
+            <!-- 템플릿 2: 미스틱 -->
+            <div class="template-section">
+                <h3 class="template-title">미스틱 스타</h3>
+                <div class="card-back template-2" onclick="selectTemplate(2)"></div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">어둠 속 빛나는 별들<br>신비로운 우주 분위기</p>
+            </div>
+
+            <!-- 템플릿 3: 기하학적 -->
+            <div class="template-section">
+                <h3 class="template-title">지오메트릭</h3>
+                <div class="card-back template-3" onclick="selectTemplate(3)"></div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">현대적 기하학 패턴<br>회전하는 다이아몬드</p>
+            </div>
+
+            <!-- 템플릿 4: 브랜딩 -->
+            <div class="template-section">
+                <h3 class="template-title">SoulCard 브랜딩</h3>
+                <div class="card-back template-4" onclick="selectTemplate(4)">
+                    <div class="logo">🔮</div>
+                    <div class="brand-name">SoulCard</div>
+                    <div class="tagline">AI 영혼 타로카드</div>
+                </div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">브랜드 정체성 강조<br>깔끔한 로고 중심</p>
+            </div>
+
+            <!-- 템플릿 5: 아트 데코 -->
+            <div class="template-section">
+                <h3 class="template-title">아트 데코</h3>
+                <div class="card-back template-5" onclick="selectTemplate(5)"></div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">1920년대 아트 데코<br>번개 에너지 심볼</p>
+            </div>
+
+            <!-- 템플릿 6: 심플 -->
+            <div class="template-section">
+                <h3 class="template-title">엘레간트 문</h3>
+                <div class="card-back template-6" onclick="selectTemplate(6)"></div>
+                <p style="font-size: 0.9rem; opacity: 0.8;">우아하고 심플한 디자인<br>달 심볼 중심</p>
+            </div>
+        </div>
+
+        <div class="download-section">
+            <h3 class="download-title">🎨 카드 뒷면 제작 가이드</h3>
+            <p style="opacity: 0.8; margin-bottom: 20px;">선택한 템플릿을 기반으로 실제 카드 뒷면을 제작하세요</p>
+            
+            <div class="download-grid">
+                <button class="download-button" onclick="generateTemplate('svg')">📁 SVG 템플릿 다운로드</button>
+                <button class="download-button" onclick="generateTemplate('png')">🖼️ PNG 템플릿 다운로드</button>
+                <button class="download-button" onclick="generateTemplate('css')">🎨 CSS 코드 복사</button>
+            </div>
+
+            <div class="specs-info">
+                <div class="specs-title">📐 카드 뒷면 제작 사양</div>
+                <div class="specs-list">
+                    <strong>권장 해상도:</strong> 400×640px (5:8 비율)<br>
+                    <strong>파일 형식:</strong> WebP (권장), PNG (대체)<br>
+                    <strong>파일명:</strong> card-back.webp<br>
+                    <strong>저장 위치:</strong> /public/images/cards/<br>
+                    <strong>용량 권장:</strong> 100KB 이하 (최적화)<br>
+                    <strong>색상 프로필:</strong> sRGB<br>
+                    <strong>DPI:</strong> 300 (인쇄용), 72 (웹용)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedTemplate = null;
+
+        function selectTemplate(templateNumber) {
+            selectedTemplate = templateNumber;
+            
+            // 모든 카드에서 선택 효과 제거
+            document.querySelectorAll('.card-back').forEach(card => {
+                card.style.outline = 'none';
+            });
+            
+            // 선택된 카드에 효과 추가
+            const selectedCard = document.querySelector(`.template-${templateNumber}`);
+            selectedCard.style.outline = '3px solid var(--figma-accent-gold)';
+            selectedCard.style.outlineOffset = '4px';
+            
+            // 알림 표시
+            showNotification(`템플릿 ${templateNumber}이 선택되었습니다!`);
+        }
+
+        function generateTemplate(format) {
+            if (!selectedTemplate) {
+                showNotification('먼저 템플릿을 선택해주세요!', 'warning');
+                return;
+            }
+
+            const templateNames = {
+                1: 'classic-crystal',
+                2: 'mystic-star', 
+                3: 'geometric-diamond',
+                4: 'soulcard-branding',
+                5: 'art-deco-lightning',
+                6: 'elegant-moon'
+            };
+
+            const templateName = templateNames[selectedTemplate];
+
+            switch(format) {
+                case 'svg':
+                    generateSVGTemplate(selectedTemplate, templateName);
+                    break;
+                case 'png':
+                    generatePNGTemplate(selectedTemplate, templateName);
+                    break;
+                case 'css':
+                    copyCSSCode(selectedTemplate);
+                    break;
+            }
+        }
+
+        function generateSVGTemplate(templateNumber, templateName) {
+            // SVG 템플릿 생성 로직
+            const svgTemplates = {
+                1: generateClassicSVG(),
+                2: generateMysticSVG(),
+                3: generateGeometricSVG(),
+                4: generateBrandingSVG(),
+                5: generateArtDecoSVG(),
+                6: generateElegantSVG()
+            };
+
+            const svgContent = svgTemplates[templateNumber];
+            downloadFile(`${templateName}-card-back.svg`, svgContent, 'image/svg+xml');
+        }
+
+        function generateClassicSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="classicGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#classicGradient)" stroke="#f59e0b" stroke-width="6"/>
+  <rect x="20" y="20" width="360" height="600" rx="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+  <text x="200" y="340" font-family="Arial" font-size="60" fill="white" text-anchor="middle">🔮</text>
+</svg>`;
+        }
+
+        function generateMysticSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mysticGradient" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f0f23"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#mysticGradient)" stroke="#a855f7" stroke-width="6"/>
+  <circle cx="100" cy="160" r="20" fill="#a855f7" opacity="0.1"/>
+  <circle cx="300" cy="480" r="20" fill="#ec4899" opacity="0.1"/>
+  <circle cx="200" cy="320" r="30" fill="#f59e0b" opacity="0.05"/>
+  <text x="170" y="340" font-family="Arial" font-size="30" fill="white">✨</text>
+  <text x="200" y="340" font-family="Arial" font-size="30" fill="white">⭐</text>
+  <text x="230" y="340" font-family="Arial" font-size="30" fill="white">✨</text>
+</svg>`;
+        }
+
+        function generateGeometricSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="geoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <pattern id="geoPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#geoGradient)" stroke="#ec4899" stroke-width="6"/>
+  <rect width="400" height="640" fill="url(#geoPattern)"/>
+  <polygon points="200,270 230,300 200,330 170,300" fill="rgba(255,255,255,0.8)" transform="rotate(45 200 300)"/>
+</svg>`;
+        }
+
+        function generateBrandingSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f0f23"/>
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7"/>
+      <stop offset="100%" style="stop-color:#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#brandGradient)" stroke="#f59e0b" stroke-width="6"/>
+  <text x="200" y="280" font-family="Arial" font-size="60" fill="white" text-anchor="middle">🔮</text>
+  <text x="200" y="340" font-family="Arial" font-size="36" font-weight="bold" fill="url(#textGradient)" text-anchor="middle">SoulCard</text>
+  <text x="200" y="370" font-family="Arial" font-size="16" fill="rgba(255,255,255,0.8)" text-anchor="middle">AI 영혼 타로카드</text>
+</svg>`;
+        }
+
+        function generateArtDecoSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="decoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f0f23"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#decoGradient)" stroke="#a855f7" stroke-width="6"/>
+  <rect x="30" y="30" width="340" height="580" rx="6" fill="none" stroke="rgba(168,85,247,0.5)" stroke-width="2"/>
+  <text x="200" y="340" font-family="Arial" font-size="70" fill="#f59e0b" text-anchor="middle" filter="drop-shadow(0 0 20px rgba(245,158,11,0.7))">⚡</text>
+</svg>`;
+        }
+
+        function generateElegantSVG() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="640" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="elegantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc"/>
+      <stop offset="100%" style="stop-color:#e2e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="640" rx="12" fill="url(#elegantGradient)" stroke="#4b5563" stroke-width="6"/>
+  <rect x="40" y="40" width="320" height="560" rx="8" fill="none" stroke="rgba(75,85,99,0.3)" stroke-width="4"/>
+  <text x="200" y="340" font-family="Arial" font-size="60" fill="#1f2937" text-anchor="middle">🌙</text>
+</svg>`;
+        }
+
+        function generatePNGTemplate(templateNumber, templateName) {
+            // Canvas로 PNG 생성
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 640;
+            const ctx = canvas.getContext('2d');
+
+            // 선택된 템플릿에 따라 canvas에 그리기
+            drawTemplateOnCanvas(ctx, templateNumber);
+
+            // PNG로 다운로드
+            canvas.toBlob(blob => {
+                downloadFile(`${templateName}-card-back.png`, blob, 'image/png');
+            });
+        }
+
+        function drawTemplateOnCanvas(ctx, templateNumber) {
+            // 기본 배경
+            const gradient = ctx.createLinearGradient(0, 0, 400, 640);
+            
+            switch(templateNumber) {
+                case 1:
+                    gradient.addColorStop(0, '#667eea');
+                    gradient.addColorStop(1, '#764ba2');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, 400, 640);
+                    
+                    // 테두리
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 6;
+                    ctx.strokeRect(3, 3, 394, 634);
+                    
+                    // 중앙 아이콘
+                    ctx.font = '60px Arial';
+                    ctx.fillStyle = 'white';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔮', 200, 340);
+                    break;
+                    
+                // 다른 템플릿들도 비슷하게 구현...
+            }
+        }
+
+        function copyCSSCode(templateNumber) {
+            const cssCode = getCSSForTemplate(templateNumber);
+            navigator.clipboard.writeText(cssCode).then(() => {
+                showNotification('CSS 코드가 클립보드에 복사되었습니다!', 'success');
+            });
+        }
+
+        function getCSSForTemplate(templateNumber) {
+            const cssTemplates = {
+                1: `.card-back {
+    width: 200px;
+    height: 320px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid #f59e0b;
+    border-radius: 12px;
+    position: relative;
+}
+
+.card-back::before {
+    content: '';
+    position: absolute;
+    top: 20px; left: 20px; right: 20px; bottom: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+}
+
+.card-back::after {
+    content: '🔮';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}`,
+                // 다른 템플릿들도 추가...
+            };
+            
+            return cssTemplates[templateNumber] || '/* CSS 코드를 생성할 수 없습니다 */';
+        }
+
+        function downloadFile(filename, content, mimeType) {
+            const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`${filename} 다운로드가 시작되었습니다!`, 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--figma-success)' : type === 'warning' ? 'var(--figma-warning)' : 'var(--figma-info)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

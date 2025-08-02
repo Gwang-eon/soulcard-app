@@ -1,0 +1,21 @@
+# 타로카드 이미지 폴더
+# 
+# 폴더 구조:
+# ├── major-arcana/     - 메이저 아르카나 (22장)
+# ├── cups/            - 컵(물) 수트 (14장)  
+# ├── wands/           - 완드(불) 수트 (14장)
+# ├── swords/          - 소드(공기) 수트 (14장)
+# ├── pentacles/       - 펜타클(땅) 수트 (14장)
+# ├── card-back.webp   - 카드 뒷면
+# └── placeholder.webp - 로딩 플레이스홀더
+#
+# 권장 이미지 규격:
+# - 해상도: 400x640px (5:8 비율)
+# - 형식: WebP (fallback: JPG)
+# - 파일명: kebab-case (예: ace-of-cups.webp)
+#
+# 메이저 아르카나 파일명 예시:
+# 00-fool.webp, 01-magician.webp, 02-high-priestess.webp ...
+#
+# 마이너 아르카나 파일명 예시:
+# ace-of-cups.webp, two-of-cups.webp, king-of-cups.webp ...

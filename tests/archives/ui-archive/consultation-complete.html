@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard - AI 상담 시스템</title>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@11.0.24/dist/framer-motion.js"></script>
+    
+    <!-- Figma Design System CSS -->
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+        }
+        
+        .consultation-app {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--figma-gradient-dark);
+        }
+        
+        /* 데스크톱에서만 모바일 프레임 효과 */
+        @media (min-width: 1024px) {
+            .consultation-app {
+                max-width: 393px;
+                margin: 20px auto;
+                border: 3px solid #333;
+                border-radius: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                min-height: 852px;
+                max-height: 90vh;
+                overflow: hidden;
+            }
+        }
+        
+        /* 카드 애니메이션 */
+        @keyframes shuffle {
+            0% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(0.8); }
+            100% { transform: rotateY(0deg) scale(1); }
+        }
+        
+        .card-shuffle {
+            animation: shuffle 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes flipCard {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(180deg); }
+        }
+        
+        .card-flip {
+            animation: flipCard 0.6s ease-in-out;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-selected {
+            transform: scale(1.05);
+            border-color: var(--figma-primary-400);
+            box-shadow: 0 0 20px rgba(129, 140, 248, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { motion, AnimatePresence } = Motion;
+        
+        // Icon Components
+        const ArrowLeft = () => <span style={{fontSize: '20px'}}>←</span>;
+        const Heart = () => <span style={{fontSize: '24px'}}>💖</span>;
+        const Briefcase = () => <span style={{fontSize: '24px'}}>💼</span>;
+        const DollarSign = () => <span style={{fontSize: '24px'}}>💰</span>;
+        const Activity = () => <span style={{fontSize: '24px'}}>❤️‍🩹</span>;
+        const Users = () => <span style={{fontSize: '24px'}}>👥</span>;
+        const GraduationCap = () => <span style={{fontSize: '24px'}}>🎓</span>;
+        const Sparkles = () => <span style={{fontSize: '24px'}}>✨</span>;
+        const Compass = () => <span style={{fontSize: '24px'}}>🧭</span>;
+        const Check = () => <span style={{fontSize: '16px'}}>✅</span>;
+        const Copy = () => <span style={{fontSize: '16px'}}>📋</span>;
+        const Volume2 = () => <span style={{fontSize: '16px'}}>🔊</span>;
+        const RefreshCw = () => <span style={{fontSize: '16px'}}>🔄</span>;
+
+        // 상담 카테고리 데이터
+        const CONSULTATION_CATEGORIES = [
+            {
+                id: 'love',
+                nameKo: '연애・인간관계',
+                icon: Heart,
+                color: 'text-figma-love-color',
+                bgColor: 'from-pink-500/20 to-rose-400/10',
+                descriptionKo: '연애와 인간관계에 대한 궁금증을 해결해드려요'
+            },
+            {
+                id: 'career',
+                nameKo: '직업・진로',
+                icon: Briefcase,
+                color: 'text-figma-career-color',
+                bgColor: 'from-blue-500/20 to-cyan-400/10',
+                descriptionKo: '직업과 커리어에 대한 조언을 받아보세요'
+            },
+            {
+                id: 'money',
+                nameKo: '재물・재정',
+                icon: DollarSign,
+                color: 'text-figma-money-color',
+                bgColor: 'from-green-500/20 to-emerald-400/10',
+                descriptionKo: '금전운과 투자에 대한 통찰을 얻어보세요'
+            },
+            {
+                id: 'health',
+                nameKo: '건강・웰빙',
+                icon: Activity,
+                color: 'text-figma-health-color',
+                bgColor: 'from-red-500/20 to-orange-400/10',
+                descriptionKo: '몸과 마음의 건강에 대해 알아보세요'
+            },
+            {
+                id: 'relationships',
+                nameKo: '인간관계・가족',
+                icon: Users,
+                color: 'text-figma-accent-purple',
+                bgColor: 'from-purple-500/20 to-violet-400/10',
+                descriptionKo: '가족과 인간관계의 조화를 찾아보세요'
+            },
+            {
+                id: 'growth',
+                nameKo: '자아성장・학습',
+                icon: GraduationCap,
+                color: 'text-figma-accent-gold',
+                bgColor: 'from-yellow-500/20 to-amber-400/10',
+                descriptionKo: '개인적 성장과 학습에 대한 방향을 제시해드려요'
+            },
+            {
+                id: 'spiritual',
+                nameKo: '영적 성장',
+                icon: Sparkles,
+                color: 'text-figma-spiritual-color',
+                bgColor: 'from-indigo-500/20 to-purple-400/10',
+                descriptionKo: '영적 발전과 내면의 평화를 찾아보세요'
+            },
+            {
+                id: 'general',
+                nameKo: '종합・전반',
+                icon: Compass,
+                color: 'text-figma-primary-400',
+                bgColor: 'from-blue-600/20 to-indigo-400/10',
+                descriptionKo: '인생 전반에 대한 종합적인 조언을 받아보세요'
+            }
+        ];
+
+        // 상담 타입 데이터
+        const CONSULTATION_TYPES = {
+            love: [
+                {
+                    id: 'love-daily',
+                    nameKo: '오늘의 연애운',
+                    descriptionKo: '오늘 하루 연애운을 확인해보세요',
+                    cardCount: 1,
+                    duration: 5,
+                    popular: false
+                },
+                {
+                    id: 'love-three-card',
+                    nameKo: '연애 삼각편',
+                    descriptionKo: '과거, 현재, 미래 연애운을 종합적으로',
+                    cardCount: 3,
+                    duration: 15,
+                    popular: true
+                }
+            ],
+            career: [
+                {
+                    id: 'career-guidance',
+                    nameKo: '진로 상담',
+                    descriptionKo: '현재 직업과 미래 방향성에 대한 조언',
+                    cardCount: 3,
+                    duration: 15,
+                    popular: true
+                },
+                {
+                    id: 'career-cross',
+                    nameKo: '직업 십자가',
+                    descriptionKo: '직업 관련 종합적인 4가지 관점',
+                    cardCount: 4,
+                    duration: 20,
+                    popular: false
+                }
+            ],
+            money: [
+                {
+                    id: 'money-flow',
+                    nameKo: '재물 흐름',
+                    descriptionKo: '금전적 흐름과 투자 운세',
+                    cardCount: 3,
+                    duration: 15,
+                    popular: true
+                }
+            ],
+            health: [
+                {
+                    id: 'health-wellbeing',
+                    nameKo: '건강과 웰빙',
+                    descriptionKo: '몸과 마음의 균형과 건강',
+                    cardCount: 2,
+                    duration: 10,
+                    popular: false
+                }
+            ],
+            relationships: [
+                {
+                    id: 'relationships-harmony',
+                    nameKo: '인간관계 조화',
+                    descriptionKo: '주변 사람들과의 관계 개선',
+                    cardCount: 3,
+                    duration: 15,
+                    popular: false
+                }
+            ],
+            growth: [
+                {
+                    id: 'growth-direction',
+                    nameKo: '성장 방향',
+                    descriptionKo: '개인적 발전과 학습 방향',
+                    cardCount: 3,
+                    duration: 15,
+                    popular: false
+                }
+            ],
+            spiritual: [
+                {
+                    id: 'spiritual-chakra',
+                    nameKo: '차크라 밸런스',
+                    descriptionKo: '7개 차크라의 균형과 에너지',
+                    cardCount: 7,
+                    duration: 30,
+                    popular: false
+                }
+            ],
+            general: [
+                {
+                    id: 'general-daily',
+                    nameKo: '오늘의 한 장',
+                    descriptionKo: '오늘 하루를 위한 조언',
+                    cardCount: 1,
+                    duration: 5,
+                    popular: true
+                },
+                {
+                    id: 'general-celtic-cross',
+                    nameKo: '켈틱 크로스',
+                    descriptionKo: '인생 전반에 대한 종합적인 해석',
+                    cardCount: 10,
+                    duration: 45,
+                    popular: false
+                }
+            ]
+        };
+
+        // 타로카드 데이터 (간소화된 버전)
+        const TAROT_CARDS = [
+            {
+                id: 'fool',
+                nameKo: '바보(The Fool)',
+                suit: 'major',
+                keywords: ['새시작', '모험', '순수'],
+                image: '/images/cards/major-arcana/00-the-fool.webp',
+                meanings: {
+                    love: '새로운 연애의 시작, 순수한 사랑',
+                    career: '새로운 직업이나 프로젝트의 시작',
+                    money: '투자나 새로운 수입원의 가능성',
+                    health: '새로운 건강 습관의 시작',
+                    general: '인생의 새로운 전환점'
+                }
+            },
+            {
+                id: 'magician',
+                nameKo: '마법사(The Magician)',
+                suit: 'major',
+                keywords: ['창조', '의지', '능력'],
+                image: '/images/cards/major-arcana/01-the-magician.webp',
+                meanings: {
+                    love: '적극적인 연애 접근, 매력적인 만남',
+                    career: '개인 능력의 발휘, 성공적인 프로젝트',
+                    money: '의지와 능력을 통한 재정 개선',
+                    health: '자기 치유력과 회복력',
+                    general: '목표 달성을 위한 강한 의지'
+                }
+            },
+            {
+                id: 'star',
+                nameKo: '별(The Star)',
+                suit: 'major',
+                keywords: ['희망', '영감', '치유'],
+                image: '/images/cards/major-arcana/17-the-star.webp',
+                meanings: {
+                    love: '희망적인 연애, 마음의 치유',
+                    career: '장기적인 목표와 비전',
+                    money: '안정적인 재정 계획',
+                    health: '몸과 마음의 치유',
+                    general: '밝은 미래에 대한 확신'
+                }
+            },
+            // 더 많은 카드들...
+            ...Array.from({length: 75}, (_, i) => ({
+                id: `card-${i + 4}`,
+                nameKo: `타로카드 ${i + 4}`,
+                suit: ['cups', 'wands', 'swords', 'pentacles'][i % 4],
+                keywords: ['키워드1', '키워드2', '키워드3'],
+                image: `/images/cards/placeholder-${i + 4}.webp`,
+                meanings: {
+                    love: '연애에 관한 조언입니다.',
+                    career: '직업에 관한 조언입니다.',
+                    money: '재물에 관한 조언입니다.',
+                    health: '건강에 관한 조언입니다.',
+                    general: '전반적인 조언입니다.'
+                }
+            }))
+        ];
+
+        // 질문 예시 데이터
+        const QUESTION_SUGGESTIONS = {
+            love: [
+                '현재 연인과의 관계는 어떻게 발전할까요?',
+                '새로운 만남이 언제쯤 있을까요?',
+                '썸타는 사람과 진전이 있을까요?',
+                '이별한 연인과 재회할 수 있을까요?'
+            ],
+            career: [
+                '현재 직장에서 승진 가능성은?',
+                '이직을 고려하고 있는데 어떨까요?',
+                '새로운 프로젝트의 성공 가능성은?',
+                '창업을 하면 어떨까요?'
+            ],
+            money: [
+                '투자를 고려하고 있는데 어떨까요?',
+                '재정 상황이 나아질까요?',
+                '부업을 시작하면 어떨까요?',
+                '큰 지출을 계획하고 있는데 괜찮을까요?'
+            ],
+            // 다른 카테고리들...
+            general: [
+                '앞으로 1개월 동안 어떤 일이 일어날까요?',
+                '중요한 결정을 앞두고 있어요. 어떻게 해야 할까요?',
+                '현재 상황에서 가장 집중해야 할 것은?',
+                '인생의 방향성에 대한 조언을 구해요.'
+            ]
+        };
+
+        // Progress Bar 컴포넌트
+        function ProgressBar({ currentStep }) {
+            const steps = ['category-selection', 'type-selection', 'question-input', 'card-selection', 'result'];
+            const progress = ((steps.indexOf(currentStep) + 1) / steps.length) * 100;
+            
+            return (
+                <div className="w-full h-1 bg-white bg-opacity-20 rounded-full overflow-hidden">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-figma-primary-400 to-figma-accent-purple"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.5 }}
+                    />
+                </div>
+            );
+        }
+
+        // Step 1: 카테고리 선택
+        function CategorySelectionStep({ onCategorySelect }) {
+            return (
+                <motion.div
+                    key="category-selection"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-6"
+                >
+                    <div className="text-center mb-8">
+                        <h1 className="text-white text-2xl font-bold mb-2">상담 분야 선택</h1>
+                        <p className="text-white opacity-70 text-sm">어떤 분야에 대해 궁금하신가요?</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {CONSULTATION_CATEGORIES.map((category, index) => {
+                            const IconComponent = category.icon;
+                            return (
+                                <motion.button
+                                    key={category.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    onClick={() => onCategorySelect(category)}
+                                    className={`p-4 rounded-xl bg-gradient-to-br ${category.bgColor} border border-white border-opacity-10 hover:border-white hover:border-opacity-20 transition-all group hover:scale-105`}
+                                >
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="w-12 h-12 bg-white bg-opacity-10 rounded-full flex items-center justify-center mb-3">
+                                            <IconComponent />
+                                        </div>
+                                        <h3 className="text-white font-semibold text-sm mb-1">{category.nameKo}</h3>
+                                        <p className="text-white opacity-60 text-xs leading-tight">{category.descriptionKo}</p>
+                                    </div>
+                                </motion.button>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Step 2: 타입 선택
+        function TypeSelectionStep({ category, onTypeSelect, onBack }) {
+            const [selectedType, setSelectedType] = useState(null);
+            const types = CONSULTATION_TYPES[category.id] || [];
+
+            const handleTypeSelect = (type) => {
+                setSelectedType(type);
+                setTimeout(() => onTypeSelect(type), 300);
+            };
+
+            return (
+                <motion.div
+                    key="type-selection"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-6"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <button 
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition-all"
+                        >
+                            <ArrowLeft />
+                        </button>
+                        <div className="text-center">
+                            <h1 className="text-white font-bold text-lg">{category.nameKo}</h1>
+                        </div>
+                        <div className="w-10" />
+                    </div>
+
+                    <div className="space-y-4">
+                        {types.map((type, index) => (
+                            <motion.button
+                                key={type.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                onClick={() => handleTypeSelect(type)}
+                                className={`w-full p-4 rounded-xl border transition-all text-left ${
+                                    selectedType?.id === type.id
+                                        ? 'border-figma-primary-400 bg-figma-primary-500 bg-opacity-20'
+                                        : 'border-white border-opacity-10 bg-white bg-opacity-5 hover:bg-opacity-10'
+                                }`}
+                            >
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-white font-semibold">{type.nameKo}</h3>
+                                    <div className="flex items-center gap-2">
+                                        {type.popular && (
+                                            <span className="px-2 py-1 bg-figma-accent-gold text-black text-xs font-bold rounded">
+                                                인기
+                                            </span>
+                                        )}
+                                        {selectedType?.id === type.id && <Check />}
+                                    </div>
+                                </div>
+                                <p className="text-white opacity-70 text-sm mb-3">{type.descriptionKo}</p>
+                                <div className="flex items-center justify-between text-xs text-white opacity-60">
+                                    <span>카드 {type.cardCount}장</span>
+                                    <span>약 {type.duration}분</span>
+                                </div>
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Step 3: 질문 입력
+        function QuestionInputStep({ category, consultationType, onQuestionSubmit, onBack }) {
+            const [question, setQuestion] = useState('');
+            const suggestions = QUESTION_SUGGESTIONS[category.id] || [];
+
+            const handleSuggestionClick = (suggestion) => {
+                setQuestion(suggestion);
+            };
+
+            const handleSubmit = () => {
+                if (question.trim()) {
+                    onQuestionSubmit(question);
+                }
+            };
+
+            return (
+                <motion.div
+                    key="question-input"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-6"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <button 
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition-all"
+                        >
+                            <ArrowLeft />
+                        </button>
+                        <div className="text-center">
+                            <h1 className="text-white font-bold text-lg">질문하기</h1>
+                        </div>
+                        <div className="w-10" />
+                    </div>
+
+                    <div className="mb-6">
+                        <div className="card-container p-4 mb-4">
+                            <h3 className="text-white font-semibold mb-2">{consultationType.nameKo}</h3>
+                            <p className="text-white opacity-70 text-sm">{consultationType.descriptionKo}</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-white font-medium mb-2">
+                                    구체적인 질문을 입력해주세요
+                                </label>
+                                <textarea
+                                    value={question}
+                                    onChange={(e) => setQuestion(e.target.value)}
+                                    className="w-full h-24 p-3 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg text-white placeholder-white placeholder-opacity-60 resize-none"
+                                    placeholder="궁금한 것을 자유롭게 질문해보세요..."
+                                    maxLength={200}
+                                />
+                                <div className="text-right text-xs text-white opacity-60 mt-1">
+                                    {question.length}/200
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 className="text-white font-medium mb-3">💡 질문 예시</h4>
+                                <div className="space-y-2">
+                                    {suggestions.map((suggestion, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleSuggestionClick(suggestion)}
+                                            className="w-full p-3 text-left bg-white bg-opacity-5 hover:bg-opacity-10 border border-white border-opacity-10 rounded-lg text-white text-sm transition-all"
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleSubmit}
+                        disabled={!question.trim()}
+                        className={`w-full py-4 rounded-xl font-semibold transition-all ${
+                            question.trim()
+                                ? 'btn-primary'
+                                : 'bg-white bg-opacity-10 text-white opacity-50 cursor-not-allowed'
+                        }`}
+                    >
+                        카드 선택하기
+                    </button>
+                </motion.div>
+            );
+        }
+
+        // Step 4: 카드 선택
+        function CardSelectionStep({ consultationType, question, onCardsSelected, onBack }) {
+            const [isShuffling, setIsShuffling] = useState(true);
+            const [availableCards, setAvailableCards] = useState([]);
+            const [selectedCards, setSelectedCards] = useState([]);
+
+            useEffect(() => {
+                // 셔플 애니메이션 시작
+                setTimeout(() => {
+                    // 랜덤하게 12장 선택
+                    const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5);
+                    setAvailableCards(shuffled.slice(0, 12));
+                    setIsShuffling(false);
+                }, 2000);
+            }, []);
+
+            const handleCardSelect = (card, index) => {
+                if (selectedCards.length >= consultationType.cardCount) return;
+
+                const isReversed = Math.random() > 0.7; // 30% 확률로 역방향
+                const positions = ['과거', '현재', '미래', '조언', '결과', '장애물', '희망'];
+                const position = positions[selectedCards.length] || `카드 ${selectedCards.length + 1}`;
+
+                const selectedCard = {
+                    ...card,
+                    isReversed,
+                    position,
+                    index
+                };
+
+                const newSelectedCards = [...selectedCards, selectedCard];
+                setSelectedCards(newSelectedCards);
+
+                // 모든 카드가 선택되면 결과로 이동
+                if (newSelectedCards.length === consultationType.cardCount) {
+                    setTimeout(() => {
+                        onCardsSelected(newSelectedCards);
+                    }, 1000);
+                }
+            };
+
+            if (isShuffling) {
+                return (
+                    <motion.div
+                        key="shuffling"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="h-screen flex flex-col items-center justify-center px-6"
+                    >
+                        <div className="text-center mb-8">
+                            <h2 className="text-white text-xl font-bold mb-2">카드를 섞고 있습니다</h2>
+                            <p className="text-white opacity-70">마음을 집중해주세요...</p>
+                        </div>
+                        
+                        <div className="relative">
+                            {[...Array(5)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute w-20 h-32 card-back rounded-lg card-shuffle"
+                                    style={{
+                                        left: `${i * 5}px`,
+                                        top: `${i * 3}px`,
+                                        animationDelay: `${i * 0.2}s`,
+                                        zIndex: 5 - i
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </motion.div>
+                );
+            }
+
+            return (
+                <motion.div
+                    key="card-selection"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-6"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <button 
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-full bg-white bg-opacity-10 flex items-center justify-center hover:bg-opacity-20 transition-all"
+                        >
+                            <ArrowLeft />
+                        </button>
+                        <div className="text-center">
+                            <h1 className="text-white font-bold text-lg">카드 선택</h1>
+                            <p className="text-white opacity-70 text-sm">
+                                {selectedCards.length}/{consultationType.cardCount}장 선택됨
+                            </p>
+                        </div>
+                        <div className="w-10" />
+                    </div>
+
+                    <div className="mb-6">
+                        <div className="card-container p-3">
+                            <p className="text-white text-sm opacity-80">
+                                "{question}"
+                            </p>
+                        </div>
+                    </div>
+
+                    <p className="text-white text-center opacity-70 text-sm mb-6">
+                        직감에 따라 {consultationType.cardCount}장의 카드를 선택해주세요
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-3">
+                        {availableCards.map((card, index) => {
+                            const isSelected = selectedCards.some(selected => selected.index === index);
+                            const selectedCard = selectedCards.find(selected => selected.index === index);
+                            
+                            return (
+                                <motion.button
+                                    key={index}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    onClick={() => !isSelected && handleCardSelect(card, index)}
+                                    disabled={isSelected || selectedCards.length >= consultationType.cardCount}
+                                    className={`aspect-[2/3] rounded-lg transition-all duration-300 ${
+                                        isSelected 
+                                            ? 'card-selected'
+                                            : 'card-back hover:scale-105'
+                                    } ${selectedCards.length >= consultationType.cardCount && !isSelected ? 'opacity-50' : ''}`}
+                                >
+                                    {isSelected && (
+                                        <div className="h-full flex flex-col items-center justify-center text-white">
+                                            <div className="text-2xl mb-2">🃏</div>
+                                            <div className="text-xs font-bold">{selectedCard.position}</div>
+                                        </div>
+                                    )}
+                                </motion.button>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Step 5: 결과 표시
+        function ResultStep({ category, consultationType, question, selectedCards, onReset }) {
+            const [copiedText, setCopiedText] = useState(null);
+
+            const handleCopy = (text) => {
+                navigator.clipboard.writeText(text);
+                setCopiedText(text);
+                setTimeout(() => setCopiedText(null), 2000);
+            };
+
+            const getInterpretation = (card) => {
+                const categoryKey = category.id === 'relationships' ? 'general' : category.id;
+                let interpretation = card.meanings[categoryKey] || '긍정적인 에너지가 느껴집니다.';
+                
+                if (card.isReversed) {
+                    interpretation += ' 다만 현재는 조심스럽게 접근하거나 다른 관점에서 생각해볼 필요가 있습니다.';
+                }
+                
+                return interpretation;
+            };
+
+            const getOverallInterpretation = () => {
+                const positiveCards = selectedCards.filter(card => !card.isReversed).length;
+                const totalCards = selectedCards.length;
+                
+                if (positiveCards > totalCards / 2) {
+                    return `선택하신 카드들을 종합해보면, ${category.nameKo} 분야에서 긍정적인 변화와 기회가 다가올 것으로 보입니다. 특히 내면의 직감을 믿고 행동할 때 좋은 결과를 얻을 수 있을 것입니다.`;
+                } else {
+                    return `현재 ${category.nameKo} 분야에서는 신중한 접근이 필요한 시기로 보입니다. 성급한 결정보다는 충분히 생각해본 후 행동하시기 바랍니다. 때로는 기다리는 것도 지혜입니다.`;
+                }
+            };
+
+            return (
+                <motion.div
+                    key="result"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-6 pb-6"
+                >
+                    <div className="text-center mb-6">
+                        <h1 className="text-white text-xl font-bold mb-2">✨ 상담 결과</h1>
+                        <p className="text-white opacity-70 text-sm">{consultationType.nameKo}</p>
+                    </div>
+
+                    <div className="space-y-6">
+                        {/* 질문 표시 */}
+                        <div className="card-container p-4">
+                            <h3 className="text-white font-semibold mb-2">📝 질문</h3>
+                            <p className="text-white opacity-80 text-sm">"{question}"</p>
+                        </div>
+
+                        {/* 선택된 카드들 */}
+                        <div className="space-y-4">
+                            <h3 className="text-white font-semibold">🃏 선택된 카드</h3>
+                            {selectedCards.map((card, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.2 }}
+                                    className="card-container p-4"
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-16 h-24 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">
+                                            🃏
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h4 className="text-white font-semibold text-sm">{card.nameKo}</h4>
+                                                {card.isReversed && (
+                                                    <span className="px-2 py-1 bg-orange-500 bg-opacity-20 text-orange-300 text-xs rounded">
+                                                        역방향
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-figma-primary-400 text-xs font-medium mb-1">{card.position}</p>
+                                            <div className="flex flex-wrap gap-1 mb-2">
+                                                {card.keywords.slice(0, 3).map((keyword, i) => (
+                                                    <span key={i} className="px-2 py-1 bg-white bg-opacity-10 text-white text-xs rounded">
+                                                        {keyword}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                            <p className="text-white opacity-80 text-sm leading-relaxed mb-3">
+                                                {getInterpretation(card)}
+                                            </p>
+                                            <button
+                                                onClick={() => handleCopy(getInterpretation(card))}
+                                                className="flex items-center gap-2 text-white opacity-60 hover:opacity-100 transition-opacity text-xs"
+                                            >
+                                                {copiedText === getInterpretation(card) ? <Check /> : <Copy />}
+                                                복사
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* 종합 해석 */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: selectedCards.length * 0.2 + 0.3 }}
+                            className="card-container p-4"
+                        >
+                            <h3 className="text-white font-semibold mb-3">🎯 종합 해석</h3>
+                            <p className="text-white opacity-80 text-sm leading-relaxed mb-4">
+                                {getOverallInterpretation()}
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => handleCopy(getOverallInterpretation())}
+                                    className="flex items-center gap-2 text-white opacity-60 hover:opacity-100 transition-opacity text-sm"
+                                >
+                                    {copiedText === getOverallInterpretation() ? <Check /> : <Copy />}
+                                    복사
+                                </button>
+                                <button className="flex items-center gap-2 text-white opacity-60 hover:opacity-100 transition-opacity text-sm">
+                                    <Volume2 />
+                                    듣기
+                                </button>
+                            </div>
+                        </motion.div>
+
+                        {/* 액션 버튼들 */}
+                        <div className="space-y-3 pt-4">
+                            <button
+                                onClick={onReset}
+                                className="btn-primary w-full py-4 flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw />
+                                새로운 상담하기
+                            </button>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button className="py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all text-sm">
+                                    결과 저장
+                                </button>
+                                <button className="py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all text-sm">
+                                    공유하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // 메인 상담 컴포넌트
+        function ConsultationSystem() {
+            const [currentStep, setCurrentStep] = useState('category-selection');
+            const [selectedCategory, setSelectedCategory] = useState(null);
+            const [selectedType, setSelectedType] = useState(null);
+            const [question, setQuestion] = useState('');
+            const [selectedCards, setSelectedCards] = useState([]);
+
+            const handleCategorySelect = (category) => {
+                setSelectedCategory(category);
+                setCurrentStep('type-selection');
+            };
+
+            const handleTypeSelect = (type) => {
+                setSelectedType(type);
+                setCurrentStep('question-input');
+            };
+
+            const handleQuestionSubmit = (questionText) => {
+                setQuestion(questionText);
+                setCurrentStep('card-selection');
+            };
+
+            const handleCardsSelected = (cards) => {
+                setSelectedCards(cards);
+                setCurrentStep('result');
+            };
+
+            const handleReset = () => {
+                setCurrentStep('category-selection');
+                setSelectedCategory(null);
+                setSelectedType(null);
+                setQuestion('');
+                setSelectedCards([]);
+            };
+
+            const renderStep = () => {
+                switch(currentStep) {
+                    case 'category-selection':
+                        return (
+                            <CategorySelectionStep 
+                                onCategorySelect={handleCategorySelect}
+                            />
+                        );
+                    case 'type-selection':
+                        return (
+                            <TypeSelectionStep 
+                                category={selectedCategory}
+                                onTypeSelect={handleTypeSelect}
+                                onBack={() => setCurrentStep('category-selection')}
+                            />
+                        );
+                    case 'question-input':
+                        return (
+                            <QuestionInputStep 
+                                category={selectedCategory}
+                                consultationType={selectedType}
+                                onQuestionSubmit={handleQuestionSubmit}
+                                onBack={() => setCurrentStep('type-selection')}
+                            />
+                        );
+                    case 'card-selection':
+                        return (
+                            <CardSelectionStep 
+                                consultationType={selectedType}
+                                question={question}
+                                onCardsSelected={handleCardsSelected}
+                                onBack={() => setCurrentStep('question-input')}
+                            />
+                        );
+                    case 'result':
+                        return (
+                            <ResultStep 
+                                category={selectedCategory}
+                                consultationType={selectedType}
+                                question={question}
+                                selectedCards={selectedCards}
+                                onReset={handleReset}
+                            />
+                        );
+                    default:
+                        return null;
+                }
+            };
+
+            return (
+                <div className="consultation-app figma-design">
+                    {/* Header */}
+                    <div className="sticky top-0 z-10 bg-figma-dark-bg-secondary border-b border-white border-opacity-10">
+                        <div className="flex items-center justify-between p-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-2xl">🔮</span>
+                                <span className="text-white font-bold">AI 타로 상담</span>
+                            </div>
+                            <div className="text-white opacity-70 text-sm">
+                                토큰 12개
+                            </div>
+                        </div>
+                        <div className="px-4 pb-4">
+                            <ProgressBar currentStep={currentStep} />
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-h-screen pt-6">
+                        <AnimatePresence mode="wait">
+                            {renderStep()}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<ConsultationSystem />, document.getElementById('app'));
+    </script>
+</body>
+</html>

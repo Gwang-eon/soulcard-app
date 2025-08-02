@@ -1,0 +1,22 @@
+{
+  "name": "soulcard-frontend",
+  "version": "2.0.0",
+  "description": "SoulCard.app - Frontend (HTML/CSS/JS)",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "start": "python3 -m http.server 8000",
+    "preview": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "soulcard",
+    "tarot",
+    "ai",
+    "frontend",
+    "html",
+    "javascript"
+  ],
+  "author": "SoulCard Team",
+  "license": "MIT",
+  "homepage": "https://soulcard.app"
+}

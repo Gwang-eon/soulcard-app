@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard - Design System Test</title>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@11.0.24/dist/framer-motion.js"></script>
+    
+    <!-- Simple Icons (using text) --></script>
+    
+    <!-- Figma Design System CSS -->
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            margin: 0 4px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-button.active:hover {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+        }
+        
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d3748 50%, #1a202c 100%);
+        }
+        
+        .tab-content {
+            min-height: calc(100vh - 80px);
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { motion } = Motion;
+        
+        // Simple Icon Components
+        const Copy = () => <span>📋</span>;
+        const Check = ({ style }) => <span style={style}>✅</span>;
+
+        // Color Foundations Component
+        function ColorFoundations() {
+            const [copiedColor, setCopiedColor] = useState(null);
+            
+            const colorSections = [
+                {
+                    title: 'Primary Colors',
+                    description: '브랜드의 핵심 컬러 시스템',
+                    colors: [
+                        {
+                            name: 'Primary 500',
+                            variable: '--figma-primary-500',
+                            value: '#6366f1',
+                            description: '메인 브랜드 컬러',
+                            usage: ['버튼', '브랜딩']
+                        },
+                        {
+                            name: 'Primary 400',
+                            variable: '--figma-primary-400',
+                            value: '#818cf8',
+                            description: '중간 톤 브랜드 컬러',
+                            usage: ['아이콘', '링크']
+                        }
+                    ]
+                },
+                {
+                    title: 'Functional Colors',
+                    description: '기능별 카테고리 컬러',
+                    colors: [
+                        {
+                            name: 'Love',
+                            variable: '--figma-love-color',
+                            value: '#ec4899',
+                            description: '연애 상담',
+                            usage: ['연애 카드', '하트 아이콘']
+                        },
+                        {
+                            name: 'Money',
+                            variable: '--figma-money-color',
+                            value: '#10b981',
+                            description: '재정 상담',
+                            usage: ['돈 카드', '성공 상태']
+                        }
+                    ]
+                }
+            ];
+            
+            const handleCopyColor = (value) => {
+                navigator.clipboard.writeText(value);
+                setCopiedColor(value);
+                setTimeout(() => setCopiedColor(null), 2000);
+            };
+            
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">컬러 시스템</h1>
+                            <p className="text-white opacity-70 text-base">
+                                일관된 브랜드 경험을 위한 컬러 팔레트
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-12">
+                            {colorSections.map((section, sectionIndex) => (
+                                <motion.div
+                                    key={section.title}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: sectionIndex * 0.1 }}
+                                    className="card-container"
+                                >
+                                    <div className="mb-6">
+                                        <h2 className="text-white text-xl font-semibold mb-2">
+                                            {section.title}
+                                        </h2>
+                                        <p className="text-white opacity-60 text-sm">
+                                            {section.description}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {section.colors.map((color, colorIndex) => (
+                                            <div
+                                                key={color.name}
+                                                className="flex items-center gap-4 p-3 rounded-lg bg-white bg-opacity-5 hover:bg-opacity-10 transition-all"
+                                            >
+                                                <div
+                                                    className="w-12 h-12 rounded-lg border-2 border-white border-opacity-20 flex-shrink-0"
+                                                    style={{ backgroundColor: color.value }}
+                                                />
+                                                
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h3 className="text-white font-medium text-sm">
+                                                            {color.name}
+                                                        </h3>
+                                                        <code className="text-xs text-white opacity-60 bg-white bg-opacity-10 px-2 py-1 rounded">
+                                                            {color.value}
+                                                        </code>
+                                                    </div>
+                                                    
+                                                    <p className="text-white opacity-70 text-xs mb-2">
+                                                        {color.description}
+                                                    </p>
+                                                    
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {color.usage.map((usage) => (
+                                                            <span
+                                                                key={usage}
+                                                                className="text-xs bg-white bg-opacity-10 text-white opacity-70 px-2 py-1 rounded"
+                                                            >
+                                                                {usage}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                
+                                                <button
+                                                    onClick={() => handleCopyColor(color.value)}
+                                                    className="w-8 h-8 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 flex items-center justify-center text-white opacity-70 hover:opacity-100 transition-all"
+                                                >
+                                                    {copiedColor === color.value ? (
+                                                        <Check style={{color: '#10b981'}} />
+                                                    ) : (
+                                                        <Copy />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Button Test Component
+        function ButtonTest() {
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">버튼 시스템</h1>
+                            <p className="text-white opacity-70 text-base">
+                                다양한 버튼 스타일과 상태
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Primary Buttons</h2>
+                                <div className="flex flex-wrap gap-4">
+                                    <button className="btn-primary">
+                                        Primary Button
+                                    </button>
+                                    <button className="btn-secondary">
+                                        Secondary Button
+                                    </button>
+                                    <button style={{
+                                        padding: '12px 24px',
+                                        background: 'transparent',
+                                        color: 'var(--figma-primary-400)',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }} onMouseOver={(e) => {
+                                        e.target.style.background = 'rgba(255,255,255,0.1)';
+                                    }} onMouseOut={(e) => {
+                                        e.target.style.background = 'transparent';
+                                    }}>
+                                        Ghost Button
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Functional Buttons</h2>
+                                <div className="flex flex-wrap gap-4">
+                                    <button style={{
+                                        padding: '12px 24px',
+                                        background: 'var(--figma-money-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }} onMouseOver={(e) => {
+                                        e.target.style.opacity = '0.9';
+                                    }} onMouseOut={(e) => {
+                                        e.target.style.opacity = '1';
+                                    }}>
+                                        Success Button
+                                    </button>
+                                    <button style={{
+                                        padding: '12px 24px',
+                                        background: 'var(--figma-love-color)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }} onMouseOver={(e) => {
+                                        e.target.style.opacity = '0.9';
+                                    }} onMouseOut={(e) => {
+                                        e.target.style.opacity = '1';
+                                    }}>
+                                        Love Button
+                                    </button>
+                                    <button style={{
+                                        padding: '12px 24px',
+                                        background: 'var(--figma-accent-purple)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }} onMouseOver={(e) => {
+                                        e.target.style.opacity = '0.9';
+                                    }} onMouseOut={(e) => {
+                                        e.target.style.opacity = '1';
+                                    }}>
+                                        Accent Button
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Button Sizes</h2>
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <button style={{
+                                        padding: '8px 16px',
+                                        background: 'var(--figma-gradient-primary)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        fontSize: '14px',
+                                        fontWeight: 500,
+                                        cursor: 'pointer'
+                                    }}>
+                                        Small
+                                    </button>
+                                    <button className="btn-primary">
+                                        Medium
+                                    </button>
+                                    <button style={{
+                                        padding: '16px 32px',
+                                        background: 'var(--figma-gradient-primary)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontSize: '18px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer'
+                                    }}>
+                                        Large
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Typography Test Component  
+        function TypographyTest() {
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">타이포그래피 시스템</h1>
+                            <p className="text-white opacity-70 text-base">
+                                일관된 텍스트 계층구조와 가독성
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Heading Styles</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <h1 className="text-white text-4xl font-semibold">Heading Large</h1>
+                                        <p className="text-white opacity-60 text-sm">text-4xl font-semibold</p>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-white text-3xl font-semibold">Heading Medium</h2>
+                                        <p className="text-white opacity-60 text-sm">text-3xl font-semibold</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white text-2xl font-medium">Heading Small</h3>
+                                        <p className="text-white opacity-60 text-sm">text-2xl font-medium</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Body Styles</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-white text-lg font-normal">Body Large - 인트로 텍스트나 중요한 본문에 사용</p>
+                                        <p className="text-white opacity-60 text-sm">text-lg font-normal</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-white text-base font-normal">Body Medium - 기본 본문과 설명 텍스트에 사용</p>
+                                        <p className="text-white opacity-60 text-sm">text-base font-normal</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-white text-sm font-normal">Body Small - 보조 텍스트와 캡션에 사용</p>
+                                        <p className="text-white opacity-60 text-sm">text-sm font-normal</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Form Test Component
+        function FormTest() {
+            const [formValues, setFormValues] = useState({});
+            const [showPassword, setShowPassword] = useState(false);
+            
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">폼 컴포넌트</h1>
+                            <p className="text-white opacity-70 text-base">
+                                입력 필드와 폼 그룹 컴포넌트
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">Input Fields</h2>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="block text-white text-sm font-medium">
+                                            사용자명 <span style={{color: '#ef4444'}}>*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="사용자명을 입력하세요"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '48px',
+                                                    paddingLeft: '48px',
+                                                    background: 'rgba(255, 255, 255, 0.1)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                    borderRadius: '8px',
+                                                    color: 'white',
+                                                    fontSize: '14px'
+                                                }}
+                                                value={formValues['username'] || ''}
+                                                onChange={(e) => setFormValues(prev => ({ ...prev, username: e.target.value }))}
+                                            />
+                                            <span style={{
+                                                position: 'absolute',
+                                                left: '16px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                fontSize: '16px'
+                                            }}>👤</span>
+                                        </div>
+                                        <p className="text-white opacity-60 text-xs">2-20자의 영문, 숫자 조합</p>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label className="block text-white text-sm font-medium">
+                                            이메일 주소 <span style={{color: '#ef4444'}}>*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="email"
+                                                placeholder="your@email.com"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '48px',
+                                                    paddingLeft: '48px',
+                                                    paddingRight: '48px',
+                                                    background: 'rgba(255, 255, 255, 0.1)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                    borderRadius: '8px',
+                                                    color: 'white',
+                                                    fontSize: '14px'
+                                                }}
+                                                value={formValues['email'] || ''}
+                                                onChange={(e) => setFormValues(prev => ({ ...prev, email: e.target.value }))}
+                                            />
+                                            <span style={{
+                                                position: 'absolute',
+                                                left: '16px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                fontSize: '16px'
+                                            }}>📧</span>
+                                            <span style={{
+                                                position: 'absolute',
+                                                right: '16px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                fontSize: '16px',
+                                                color: '#10b981'
+                                            }}>✓</span>
+                                        </div>
+                                        <p className="text-white opacity-60 text-xs">로그인과 알림에 사용됩니다</p>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label className="block text-white text-sm font-medium">
+                                            비밀번호 <span style={{color: '#ef4444'}}>*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? 'text' : 'password'}
+                                                placeholder="비밀번호를 입력하세요"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '48px',
+                                                    paddingLeft: '48px',
+                                                    paddingRight: '48px',
+                                                    background: 'rgba(255, 255, 255, 0.1)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                    borderRadius: '8px',
+                                                    color: 'white',
+                                                    fontSize: '14px'
+                                                }}
+                                                value={formValues['password'] || ''}
+                                                onChange={(e) => setFormValues(prev => ({ ...prev, password: e.target.value }))}
+                                            />
+                                            <span style={{
+                                                position: 'absolute',
+                                                left: '16px',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                fontSize: '16px'
+                                            }}>🔒</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                style={{
+                                                    position: 'absolute',
+                                                    right: '16px',
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: 'rgba(255, 255, 255, 0.6)',
+                                                    cursor: 'pointer',
+                                                    fontSize: '16px'
+                                                }}
+                                            >
+                                                {showPassword ? '🙈' : '👁️'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Card Components Test
+        function CardTest() {
+            const [favorites, setFavorites] = useState({});
+            
+            const toggleFavorite = (id) => {
+                setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
+            };
+            
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">카드 컴포넌트</h1>
+                            <p className="text-white opacity-70 text-base">
+                                카드 헤더, 진행 표시기, 통계 카드
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            {/* Card Headers */}
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">카드 헤더</h2>
+                                <div className="card-container">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div style={{
+                                                width: '40px',
+                                                height: '40px',
+                                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <span className="text-white text-lg">🔮</span>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-white font-semibold">오늘의 타로</h3>
+                                                <p className="text-white opacity-60 text-sm">2024.01.15</p>
+                                            </div>
+                                        </div>
+                                        <button style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(255, 255, 255, 0.1)',
+                                            border: 'none',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'rgba(255, 255, 255, 0.7)',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }} onMouseOver={(e) => {
+                                            e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                                            e.target.style.color = 'white';
+                                        }} onMouseOut={(e) => {
+                                            e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                                            e.target.style.color = 'rgba(255, 255, 255, 0.7)';
+                                        }}>
+                                            ⋯
+                                        </button>
+                                    </div>
+                                    <div style={{
+                                        height: '80px',
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'rgba(255, 255, 255, 0.4)'
+                                    }}>
+                                        카드 콘텐츠 영역
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Progress Indicators */}
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">진행 표시기</h2>
+                                <div className="card-container">
+                                    <div className="mb-6">
+                                        <h3 className="text-white font-semibold mb-2">상담 진행 상황</h3>
+                                        <p className="text-white opacity-60 text-sm">3단계 중 2단계 완료</p>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between mb-4">
+                                        {[1, 2, 3].map((step, index) => (
+                                            <React.Fragment key={step}>
+                                                <div className="flex flex-col items-center">
+                                                    <div style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: '500',
+                                                        fontSize: '14px',
+                                                        background: step <= 2 ? '#6366f1' : 'rgba(255, 255, 255, 0.2)',
+                                                        color: step <= 2 ? 'white' : 'rgba(255, 255, 255, 0.6)'
+                                                    }}>
+                                                        {step <= 2 ? '✓' : step}
+                                                    </div>
+                                                    <span style={{
+                                                        fontSize: '12px',
+                                                        marginTop: '8px',
+                                                        color: step <= 2 ? 'white' : 'rgba(255, 255, 255, 0.6)'
+                                                    }}>
+                                                        {step === 1 ? '질문입력' : step === 2 ? '카드선택' : '결과확인'}
+                                                    </span>
+                                                </div>
+                                                {index < 2 && (
+                                                    <div style={{
+                                                        flex: '1',
+                                                        height: '1px',
+                                                        margin: '0 16px',
+                                                        background: step < 2 ? '#6366f1' : 'rgba(255, 255, 255, 0.2)'
+                                                    }} />
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                    
+                                    <div style={{
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        borderRadius: '8px',
+                                        padding: '16px'
+                                    }}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-white text-sm">전체 진행률</span>
+                                            <span style={{color: '#818cf8'}} className="text-sm font-medium">67%</span>
+                                        </div>
+                                        <div style={{
+                                            width: '100%',
+                                            background: 'rgba(255, 255, 255, 0.1)',
+                                            borderRadius: '9999px',
+                                            height: '8px'
+                                        }}>
+                                            <div style={{
+                                                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                                height: '8px',
+                                                borderRadius: '9999px',
+                                                width: '67%',
+                                                transition: 'all 0.3s'
+                                            }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Statistics Cards */}
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">통계 카드</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    {[
+                                        { label: '총 상담 횟수', value: '142', change: '+12', trend: 'up', icon: '🔮' },
+                                        { label: '이번 달 상담', value: '28', change: '+8', trend: 'up', icon: '📅' },
+                                        { label: '평균 평점', value: '4.8', change: '+0.2', trend: 'up', icon: '⭐' },
+                                        { label: '보유 토큰', value: '15', change: '-3', trend: 'down', icon: '💰' }
+                                    ].map((stat, index) => (
+                                        <div key={index} style={{
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            borderRadius: '8px',
+                                            padding: '16px'
+                                        }}>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-2xl">{stat.icon}</span>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '12px',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '9999px',
+                                                    background: stat.trend === 'up' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                                    color: stat.trend === 'up' ? '#10b981' : '#ef4444'
+                                                }}>
+                                                    <span>{stat.trend === 'up' ? '↗️' : '↘️'}</span>
+                                                    {stat.change}
+                                                </div>
+                                            </div>
+                                            <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                                            <div className="text-white opacity-60 text-xs">{stat.label}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Badge Test Component
+        function BadgeTest() {
+            return (
+                <div className="figma-design">
+                    <div className="min-h-screen bg-gradient-dark p-6">
+                        <div className="mb-8">
+                            <h1 className="text-white text-3xl font-bold mb-2">배지 시스템</h1>
+                            <p className="text-white opacity-70 text-base">
+                                상태 표시와 라벨용 배지 컴포넌트
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">기본 배지</h2>
+                                <div className="flex flex-wrap gap-4">
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(99, 102, 241, 0.2)',
+                                        color: '#a5b4fc',
+                                        border: '1px solid rgba(99, 102, 241, 0.3)'
+                                    }}>
+                                        ⭐ Primary
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(34, 197, 94, 0.2)',
+                                        color: '#86efac',
+                                        border: '1px solid rgba(34, 197, 94, 0.3)'
+                                    }}>
+                                        ✓ Success
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(245, 158, 11, 0.2)',
+                                        color: '#fbbf24',
+                                        border: '1px solid rgba(245, 158, 11, 0.3)'
+                                    }}>
+                                        ⚠️ Warning
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(239, 68, 68, 0.2)',
+                                        color: '#fca5a5',
+                                        border: '1px solid rgba(239, 68, 68, 0.3)'
+                                    }}>
+                                        ✕ Error
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div className="card-container">
+                                <h2 className="text-white text-xl font-semibold mb-6">카테고리 배지</h2>
+                                <div className="flex flex-wrap gap-4">
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(236, 72, 153, 0.2)',
+                                        color: '#f9a8d4',
+                                        border: '1px solid rgba(236, 72, 153, 0.3)'
+                                    }}>
+                                        💕 연애
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(59, 130, 246, 0.2)',
+                                        color: '#93c5fd',
+                                        border: '1px solid rgba(59, 130, 246, 0.3)'
+                                    }}>
+                                        💼 직장
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(16, 185, 129, 0.2)',
+                                        color: '#86efac',
+                                        border: '1px solid rgba(16, 185, 129, 0.3)'
+                                    }}>
+                                        💰 재정
+                                    </span>
+                                    <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '4px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        background: 'rgba(34, 197, 94, 0.2)',
+                                        color: '#86efac',
+                                        border: '1px solid rgba(34, 197, 94, 0.3)'
+                                    }}>
+                                        🍃 건강
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [activeTab, setActiveTab] = useState('colors');
+            
+            const tabs = [
+                { id: 'colors', label: '컬러', component: ColorFoundations },
+                { id: 'buttons', label: '버튼', component: ButtonTest },
+                { id: 'typography', label: '타이포그래피', component: TypographyTest },
+                { id: 'forms', label: '폼', component: FormTest },
+                { id: 'badges', label: '배지', component: BadgeTest },
+                { id: 'cards', label: '카드', component: CardTest }
+            ];
+            
+            const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
+            
+            return (
+                <div>
+                    <div className="tabs-container">
+                        {tabs.map(tab => (
+                            <button
+                                key={tab.id}
+                                className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+                                onClick={() => setActiveTab(tab.id)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    <div className="tab-content">
+                        <ActiveComponent />
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('app'));
+    </script>
+</body>
+</html>

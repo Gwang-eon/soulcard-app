@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타로카드 컴포넌트 테스트</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/framer-motion@6.5.1/dist/framer-motion.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .figma-design {
+            color: white;
+        }
+        
+        .card-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        .bg-gradient-secondary {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        }
+        
+        .bg-gradient-light {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-ghost:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel" data-type="module">
+        const { useState, useCallback } = React;
+        const { motion, AnimatePresence } = Motion;
+        
+        // Lucide 아이콘 컴포넌트 생성
+        function ShuffleIcon({ className = "w-4 h-4" }) {
+            React.useEffect(() => {
+                lucide.createIcons();
+            }, []);
+            
+            return React.createElement('i', {
+                'data-lucide': 'shuffle',
+                className: className
+            });
+        }
+        
+        // 타로카드 78장 전체 데이터 (간결한 버전)
+        const majorArcana = [
+            { id: "the-fool", name: "The Fool", nameKo: "바보", image: "images/cards/major-arcana/00-the-fool.webp", suit: "major", number: 0, keywords: ["새로운 시작", "순수함", "모험"], meaning: "새로운 여정의 시작" },
+            { id: "the-magician", name: "The Magician", nameKo: "마법사", image: "images/cards/major-arcana/01-the-magician.webp", suit: "major", number: 1, keywords: ["현실화", "의지력", "욕망"], meaning: "당신의 능력 활용" },
+            { id: "the-high-priestess", name: "The High Priestess", nameKo: "여교황", image: "images/cards/major-arcana/02-the-high-priestess.webp", suit: "major", number: 2, keywords: ["직관", "신비", "내면의 지혜"], meaning: "직감을 믿으세요" },
+            { id: "the-empress", name: "The Empress", nameKo: "여황제", image: "images/cards/major-arcana/03-the-empress.webp", suit: "major", number: 3, keywords: ["풍요", "자연", "비옥함"], meaning: "풍요와 성장" },
+            { id: "the-emperor", name: "The Emperor", nameKo: "황제", image: "images/cards/major-arcana/04-the-emperor.webp", suit: "major", number: 4, keywords: ["권위", "구조", "통제"], meaning: "통제권 잡기" },
+            { id: "the-hierophant", name: "The Hierophant", nameKo: "교황", image: "images/cards/major-arcana/05-the-hierophant.webp", suit: "major", number: 5, keywords: ["전통", "순응", "도덕성"], meaning: "전통 따르기" },
+            { id: "the-lovers", name: "The Lovers", nameKo: "연인들", image: "images/cards/major-arcana/06-the-lovers.webp", suit: "major", number: 6, keywords: ["사랑", "관계", "선택"], meaning: "중요한 선택" },
+            { id: "the-chariot", name: "The Chariot", nameKo: "전차", image: "images/cards/major-arcana/07-the-chariot.webp", suit: "major", number: 7, keywords: ["통제", "의지력", "성공"], meaning: "전진하기" },
+            { id: "strength", name: "Strength", nameKo: "힘", image: "images/cards/major-arcana/08-strength.webp", suit: "major", number: 8, keywords: ["힘", "용기", "인내"], meaning: "내면의 힘" },
+            { id: "the-hermit", name: "The Hermit", nameKo: "은둔자", image: "images/cards/major-arcana/09-the-hermit.webp", suit: "major", number: 9, keywords: ["성찰", "인도", "고독"], meaning: "영혼 탐구" },
+            { id: "wheel-of-fortune", name: "Wheel of Fortune", nameKo: "운명의 바퀴", image: "images/cards/major-arcana/10-wheel-of-fortune.webp", suit: "major", number: 10, keywords: ["운", "카르마", "운명"], meaning: "운명의 변화" },
+            { id: "justice", name: "Justice", nameKo: "정의", image: "images/cards/major-arcana/11-justice.webp", suit: "major", number: 11, keywords: ["정의", "공정함", "진실"], meaning: "공정한 결과" },
+            { id: "the-hanged-man", name: "The Hanged Man", nameKo: "매달린 남자", image: "images/cards/major-arcana/12-the-hanged-man.webp", suit: "major", number: 12, keywords: ["정지", "놓아주기", "희생"], meaning: "놓아주기" },
+            { id: "death", name: "Death", nameKo: "죽음", image: "images/cards/major-arcana/13-death.webp", suit: "major", number: 13, keywords: ["변형", "끝남", "변화"], meaning: "주요 변형" },
+            { id: "temperance", name: "Temperance", nameKo: "절제", image: "images/cards/major-arcana/14-temperance.webp", suit: "major", number: 14, keywords: ["균형", "절제", "인내"], meaning: "균형 찾기" },
+            { id: "the-devil", name: "The Devil", nameKo: "악마", image: "images/cards/major-arcana/15-the-devil.webp", suit: "major", number: 15, keywords: ["속박", "중독", "물질주의"], meaning: "사슬로부터 해방" },
+            { id: "the-tower", name: "The Tower", nameKo: "탑", image: "images/cards/major-arcana/16-the-tower.webp", suit: "major", number: 16, keywords: ["급격한 변화", "격변", "계시"], meaning: "갑작스런 격변" },
+            { id: "the-star", name: "The Star", nameKo: "별", image: "images/cards/major-arcana/17-the-star.webp", suit: "major", number: 17, keywords: ["희망", "신앙", "새로움"], meaning: "희망과 치유" },
+            { id: "the-moon", name: "The Moon", nameKo: "달", image: "images/cards/major-arcana/18-the-moon.webp", suit: "major", number: 18, keywords: ["환상", "두려움", "직관"], meaning: "두려움에 직면" },
+            { id: "the-sun", name: "The Sun", nameKo: "태양", image: "images/cards/major-arcana/19-the-sun.webp", suit: "major", number: 19, keywords: ["긍정성", "성공", "활력"], meaning: "기쁨과 성공" },
+            { id: "judgement", name: "Judgement", nameKo: "심판", image: "images/cards/major-arcana/20-judgement.webp", suit: "major", number: 20, keywords: ["심판", "재생", "부름"], meaning: "두 번째 기회" },
+            { id: "the-world", name: "The World", nameKo: "세계", image: "images/cards/major-arcana/21-the-world.webp", suit: "major", number: 21, keywords: ["완성", "성취", "여행"], meaning: "성취와 완성" }
+        ];
+
+        const cups = [
+            { id: "ace-of-cups", name: "Ace of Cups", nameKo: "컵의 에이스", image: "images/cards/cups/ace-of-cups.webp", suit: "cups", number: 1, keywords: ["새로운 사랑", "연민", "창조성"], meaning: "새로운 감정적 시작" },
+            { id: "two-of-cups", name: "Two of Cups", nameKo: "컵의 2", image: "images/cards/cups/two-of-cups.webp", suit: "cups", number: 2, keywords: ["파트너십", "사랑", "조화"], meaning: "파트너십과 통합" },
+            { id: "three-of-cups", name: "Three of Cups", nameKo: "컵의 3", image: "images/cards/cups/three-of-cups.webp", suit: "cups", number: 3, keywords: ["축하", "우정", "공동체"], meaning: "축하와 우정" },
+            { id: "four-of-cups", name: "Four of Cups", nameKo: "컵의 4", image: "images/cards/cups/four-of-cups.webp", suit: "cups", number: 4, keywords: ["숙고", "무관심", "재평가"], meaning: "숙고와 철수" },
+            { id: "five-of-cups", name: "Five of Cups", nameKo: "컵의 5", image: "images/cards/cups/five-of-cups.webp", suit: "cups", number: 5, keywords: ["후회", "실망", "상실"], meaning: "상실과 실망" },
+            { id: "six-of-cups", name: "Six of Cups", nameKo: "컵의 6", image: "images/cards/cups/six-of-cups.webp", suit: "cups", number: 6, keywords: ["향수", "어린 시절", "순수함"], meaning: "향수와 어린 시절" },
+            { id: "seven-of-cups", name: "Seven of Cups", nameKo: "컵의 7", image: "images/cards/cups/seven-of-cups.webp", suit: "cups", number: 7, keywords: ["선택", "환상", "판타지"], meaning: "너무 많은 선택" },
+            { id: "eight-of-cups", name: "Eight of Cups", nameKo: "컵의 8", image: "images/cards/cups/eight-of-cups.webp", suit: "cups", number: 8, keywords: ["포기", "철수", "도피주의"], meaning: "떠나가기" },
+            { id: "nine-of-cups", name: "Nine of Cups", nameKo: "컵의 9", image: "images/cards/cups/nine-of-cups.webp", suit: "cups", number: 9, keywords: ["만족", "소원 성취", "만족감"], meaning: "소원 성취" },
+            { id: "ten-of-cups", name: "Ten of Cups", nameKo: "컵의 10", image: "images/cards/cups/ten-of-cups.webp", suit: "cups", number: 10, keywords: ["행복", "가족", "감정적 충족"], meaning: "행복한 가족 생활" },
+            { id: "page-of-cups", name: "Page of Cups", nameKo: "컵의 시종", image: "images/cards/cups/page-of-cups.webp", suit: "cups", keywords: ["창조성", "직관", "호기심"], meaning: "창조적 시작" },
+            { id: "knight-of-cups", name: "Knight of Cups", nameKo: "컵의 기사", image: "images/cards/cups/knight-of-cups.webp", suit: "cups", keywords: ["로맨스", "매력", "이상주의"], meaning: "로맨틱한 추구" },
+            { id: "queen-of-cups", name: "Queen of Cups", nameKo: "컵의 여왕", image: "images/cards/cups/queen-of-cups.webp", suit: "cups", keywords: ["자비", "직관", "감정적 안정"], meaning: "감정적 성숙" },
+            { id: "king-of-cups", name: "King of Cups", nameKo: "컵의 왕", image: "images/cards/cups/king-of-cups.webp", suit: "cups", keywords: ["감정적 균형", "자비", "외교술"], meaning: "감정적 숙련" }
+        ];
+
+        const wands = [
+            { id: "ace-of-wands", name: "Ace of Wands", nameKo: "완드의 에이스", image: "images/cards/wands/ace-of-wands.webp", suit: "wands", number: 1, keywords: ["영감", "새로운 시작", "창조적 에너지"], meaning: "새로운 창조적 프로젝트" },
+            { id: "two-of-wands", name: "Two of Wands", nameKo: "완드의 2", image: "images/cards/wands/two-of-wands.webp", suit: "wands", number: 2, keywords: ["계획", "결정", "미래"], meaning: "미래 계획" },
+            { id: "three-of-wands", name: "Three of Wands", nameKo: "완드의 3", image: "images/cards/wands/three-of-wands.webp", suit: "wands", number: 3, keywords: ["확장", "선견지명", "기회"], meaning: "확장과 성장" },
+            { id: "four-of-wands", name: "Four of Wands", nameKo: "완드의 4", image: "images/cards/wands/four-of-wands.webp", suit: "wands", number: 4, keywords: ["축하", "조화", "가정"], meaning: "축하와 조화" },
+            { id: "five-of-wands", name: "Five of Wands", nameKo: "완드의 5", image: "images/cards/wands/five-of-wands.webp", suit: "wands", number: 5, keywords: ["갈등", "경쟁", "긴장"], meaning: "갈등과 경쟁" },
+            { id: "six-of-wands", name: "Six of Wands", nameKo: "완드의 6", image: "images/cards/wands/six-of-wands.webp", suit: "wands", number: 6, keywords: ["성공", "인정", "자신감"], meaning: "성공과 인정" },
+            { id: "seven-of-wands", name: "Seven of Wands", nameKo: "완드의 7", image: "images/cards/wands/seven-of-wands.webp", suit: "wands", number: 7, keywords: ["도전", "보호", "인내"], meaning: "자신의 입장 고수" },
+            { id: "eight-of-wands", name: "Eight of Wands", nameKo: "완드의 8", image: "images/cards/wands/eight-of-wands.webp", suit: "wands", number: 8, keywords: ["속도", "행동", "진전"], meaning: "빠른 진전" },
+            { id: "nine-of-wands", name: "Nine of Wands", nameKo: "완드의 9", image: "images/cards/wands/nine-of-wands.webp", suit: "wands", number: 9, keywords: ["회복력", "끈기", "용기"], meaning: "마지막 힘이 필요" },
+            { id: "ten-of-wands", name: "Ten of Wands", nameKo: "완드의 10", image: "images/cards/wands/ten-of-wands.webp", suit: "wands", number: 10, keywords: ["부담", "책임", "힘든 일"], meaning: "무거운 부담" },
+            { id: "page-of-wands", name: "Page of Wands", nameKo: "완드의 시종", image: "images/cards/wands/page-of-wands.webp", suit: "wands", keywords: ["열정", "탐험", "발견"], meaning: "새로운 모험" },
+            { id: "knight-of-wands", name: "Knight of Wands", nameKo: "완드의 기사", image: "images/cards/wands/knight-of-wands.webp", suit: "wands", keywords: ["행동", "모험", "충동성"], meaning: "충동적 행동" },
+            { id: "queen-of-wands", name: "Queen of Wands", nameKo: "완드의 여왕", image: "images/cards/wands/queen-of-wands.webp", suit: "wands", keywords: ["자신감", "독립성", "사교적"], meaning: "자신 있는 리더십" },
+            { id: "king-of-wands", name: "King of Wands", nameKo: "완드의 왕", image: "images/cards/wands/king-of-wands.webp", suit: "wands", keywords: ["리더십", "비전", "명예"], meaning: "비전 있는 리더십" }
+        ];
+
+        const swords = [
+            { id: "ace-of-swords", name: "Ace of Swords", nameKo: "검의 에이스", image: "images/cards/swords/ace-of-swords.webp", suit: "swords", number: 1, keywords: ["돌파구", "명료함", "새로운 아이디어"], meaning: "정신적 돌파구" },
+            { id: "two-of-swords", name: "Two of Swords", nameKo: "검의 2", image: "images/cards/swords/two-of-swords.webp", suit: "swords", number: 2, keywords: ["우유부단", "어려운 선택", "교착상태"], meaning: "어려운 결정" },
+            { id: "three-of-swords", name: "Three of Swords", nameKo: "검의 3", image: "images/cards/swords/three-of-swords.webp", suit: "swords", number: 3, keywords: ["마음의 상처", "슬픔", "감정적 고통"], meaning: "감정적 고통" },
+            { id: "four-of-swords", name: "Four of Swords", nameKo: "검의 4", image: "images/cards/swords/four-of-swords.webp", suit: "swords", number: 4, keywords: ["휴식", "명상", "숙고"], meaning: "휴식의 필요" },
+            { id: "five-of-swords", name: "Five of Swords", nameKo: "검의 5", image: "images/cards/swords/five-of-swords.webp", suit: "swords", number: 5, keywords: ["갈등", "패배", "배신"], meaning: "공허한 승리" },
+            { id: "six-of-swords", name: "Six of Swords", nameKo: "검의 6", image: "images/cards/swords/six-of-swords.webp", suit: "swords", number: 6, keywords: ["전환", "변화", "나아가기"], meaning: "더 평온한 곳으로의 이동" },
+            { id: "seven-of-swords", name: "Seven of Swords", nameKo: "검의 7", image: "images/cards/swords/seven-of-swords.webp", suit: "swords", number: 7, keywords: ["속임수", "배신", "은밀함"], meaning: "속임수나 도둑질" },
+            { id: "eight-of-swords", name: "Eight of Swords", nameKo: "검의 8", image: "images/cards/swords/eight-of-swords.webp", suit: "swords", number: 8, keywords: ["제한", "갇힌 느낌", "한계"], meaning: "갇힌 느낌" },
+            { id: "nine-of-swords", name: "Nine of Swords", nameKo: "검의 9", image: "images/cards/swords/nine-of-swords.webp", suit: "swords", number: 9, keywords: ["불안", "걱정", "악몽"], meaning: "정신적 고뇌" },
+            { id: "ten-of-swords", name: "Ten of Swords", nameKo: "검의 10", image: "images/cards/swords/ten-of-swords.webp", suit: "swords", number: 10, keywords: ["고통스런 끝", "배신", "바닥"], meaning: "밑바닥" },
+            { id: "page-of-swords", name: "Page of Swords", nameKo: "검의 시종", image: "images/cards/swords/page-of-swords.webp", suit: "swords", keywords: ["호기심", "정신적 에너지", "경계"], meaning: "정신적 호기심" },
+            { id: "knight-of-swords", name: "Knight of Swords", nameKo: "검의 기사", image: "images/cards/swords/knight-of-swords.webp", suit: "swords", keywords: ["야심", "행동", "의지"], meaning: "야심찬 행동" },
+            { id: "queen-of-swords", name: "Queen of Swords", nameKo: "검의 여왕", image: "images/cards/swords/queen-of-swords.webp", suit: "swords", keywords: ["독립성", "명확한 사고", "경계"], meaning: "명확한 사고" },
+            { id: "king-of-swords", name: "King of Swords", nameKo: "검의 왕", image: "images/cards/swords/king-of-swords.webp", suit: "swords", keywords: ["정신적 명료함", "권위", "지적 힘"], meaning: "정신적 숙련" }
+        ];
+
+        const pentacles = [
+            { id: "ace-of-pentacles", name: "Ace of Pentacles", nameKo: "펜타클의 에이스", image: "images/cards/pentacles/ace-of-pentacles.webp", suit: "pentacles", number: 1, keywords: ["현실화", "기회", "풍요"], meaning: "새로운 기회" },
+            { id: "two-of-pentacles", name: "Two of Pentacles", nameKo: "펜타클의 2", image: "images/cards/pentacles/two-of-pentacles.webp", suit: "pentacles", number: 2, keywords: ["균형", "유연성", "다중 우선순위"], meaning: "우선순위 저글링" },
+            { id: "three-of-pentacles", name: "Three of Pentacles", nameKo: "펜타클의 3", image: "images/cards/pentacles/three-of-pentacles.webp", suit: "pentacles", number: 3, keywords: ["팀워크", "협력", "학습"], meaning: "협력의 성공" },
+            { id: "four-of-pentacles", name: "Four of Pentacles", nameKo: "펜타클의 4", image: "images/cards/pentacles/four-of-pentacles.webp", suit: "pentacles", number: 4, keywords: ["보수주의", "통제", "붙잡기"], meaning: "꽉 붙잡기" },
+            { id: "five-of-pentacles", name: "Five of Pentacles", nameKo: "펜타클의 5", image: "images/cards/pentacles/five-of-pentacles.webp", suit: "pentacles", number: 5, keywords: ["재정적 어려움", "고립", "실업"], meaning: "재정적 어려움" },
+            { id: "six-of-pentacles", name: "Six of Pentacles", nameKo: "펜타클의 6", image: "images/cards/pentacles/six-of-pentacles.webp", suit: "pentacles", number: 6, keywords: ["관대함", "자선", "공유"], meaning: "주고받기" },
+            { id: "seven-of-pentacles", name: "Seven of Pentacles", nameKo: "펜타클의 7", image: "images/cards/pentacles/seven-of-pentacles.webp", suit: "pentacles", number: 7, keywords: ["평가", "인내", "투자"], meaning: "진전 평가" },
+            { id: "eight-of-pentacles", name: "Eight of Pentacles", nameKo: "펜타클의 8", image: "images/cards/pentacles/eight-of-pentacles.webp", suit: "pentacles", number: 8, keywords: ["기술 개발", "장인정신", "집중"], meaning: "기술 개발" },
+            { id: "nine-of-pentacles", name: "Nine of Pentacles", nameKo: "펜타클의 9", image: "images/cards/pentacles/nine-of-pentacles.webp", suit: "pentacles", number: 9, keywords: ["풍요", "사치", "자립"], meaning: "물질적 성공" },
+            { id: "ten-of-pentacles", name: "Ten of Pentacles", nameKo: "펜타클의 10", image: "images/cards/pentacles/ten-of-pentacles.webp", suit: "pentacles", number: 10, keywords: ["부", "가족", "유산"], meaning: "부와 유산" },
+            { id: "page-of-pentacles", name: "Page of Pentacles", nameKo: "펜타클의 시종", image: "images/cards/pentacles/page-of-pentacles.webp", suit: "pentacles", keywords: ["현실화", "기회", "학습"], meaning: "새로운 학습 기회" },
+            { id: "knight-of-pentacles", name: "Knight of Pentacles", nameKo: "펜타클의 기사", image: "images/cards/pentacles/knight-of-pentacles.webp", suit: "pentacles", keywords: ["힘든 일", "일상", "신뢰성"], meaning: "꾸준한 진전" },
+            { id: "queen-of-pentacles", name: "Queen of Pentacles", nameKo: "펜타클의 여왕", image: "images/cards/pentacles/queen-of-pentacles.webp", suit: "pentacles", keywords: ["양육적", "실용적", "제공하는"], meaning: "실용적 양육" },
+            { id: "king-of-pentacles", name: "King of Pentacles", nameKo: "펜타클의 왕", image: "images/cards/pentacles/king-of-pentacles.webp", suit: "pentacles", keywords: ["재정적 성공", "사업 수완", "안정"], meaning: "물질적 숙련" }
+        ];
+
+        // 전체 타로카드 덱 (78장)
+        const fullTarotDeck = [...majorArcana, ...cups, ...wands, ...swords, ...pentacles];
+
+        // 셔플 함수 (Fisher-Yates 알고리즘)
+        function shuffleDeck(deck) {
+            const shuffled = [...deck];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // 랜덤 카드 선택
+        function drawRandomCards(count, deck = fullTarotDeck) {
+            const shuffled = shuffleDeck(deck);
+            return shuffled.slice(0, count);
+        }
+
+        // 카드 검색
+        function searchCards(query, deck = fullTarotDeck) {
+            const lowercaseQuery = query.toLowerCase();
+            return deck.filter(card => 
+                card.name.toLowerCase().includes(lowercaseQuery) ||
+                card.nameKo.includes(lowercaseQuery) ||
+                card.keywords.some(keyword => keyword.includes(lowercaseQuery))
+            );
+        }
+
+        // 초기 표시용 샘플 카드 (메이저 아르카나 처음 3장)
+        const sampleCards = majorArcana.slice(0, 3);
+        
+        // TarotCard 컴포넌트
+        function TarotCard({
+            card,
+            size = 'md',
+            isRevealed = false,
+            isSelected = false,
+            isInteractive = true,
+            showDetails = false,
+            animation,
+            onClick,
+            onFlip,
+            className = ''
+        }) {
+            const [isFlipped, setIsFlipped] = useState(isRevealed);
+            const [isHovered, setIsHovered] = useState(false);
+
+            const handleClick = () => {
+                if (!isInteractive) return;
+                
+                if (onClick) {
+                    onClick();
+                } else if (onFlip && !isRevealed) {
+                    setIsFlipped(!isFlipped);
+                    onFlip();
+                }
+            };
+
+            const cardSizeClass = {
+                xs: 'w-12 h-20',
+                sm: 'w-15 h-25', 
+                md: 'w-18 h-30',
+                lg: 'w-24 h-40',
+                xl: 'w-30 h-50'
+            }[size];
+
+            return React.createElement(motion.div, {
+                className: `relative cursor-pointer transition-all duration-300 ${cardSizeClass} ${className}`,
+                onMouseEnter: () => setIsHovered(true),
+                onMouseLeave: () => setIsHovered(false),
+                onClick: handleClick,
+                whileHover: isInteractive ? { scale: 1.05, rotate: 2 } : {},
+                whileTap: isInteractive ? { scale: 0.95 } : {},
+                animate: {
+                    rotateY: isFlipped ? 180 : 0,
+                    scale: isSelected ? 1.1 : 1,
+                    ...animation
+                },
+                transition: {
+                    duration: 0.6,
+                    ease: "easeInOut"
+                },
+                style: { transformStyle: 'preserve-3d' }
+            }, [
+                // 카드 뒷면
+                React.createElement('div', {
+                    key: 'back',
+                    className: `absolute inset-0 rounded-lg ${isSelected ? 'shadow-2xl shadow-blue-500/50' : ''}`,
+                    style: { backfaceVisibility: 'hidden' }
+                }, React.createElement('div', {
+                    className: 'w-full h-full bg-gradient-primary rounded-lg p-2 flex items-center justify-center'
+                }, React.createElement('div', {
+                    className: 'w-full h-full border-2 border-white border-opacity-30 rounded-lg flex items-center justify-center'
+                }, React.createElement('div', {
+                    className: 'text-white text-opacity-80 text-center'
+                }, [
+                    React.createElement('div', {
+                        key: 'icon',
+                        className: 'w-8 h-8 mx-auto mb-2 bg-white bg-opacity-20 rounded-full flex items-center justify-center'
+                    }, React.createElement('span', { className: 'text-lg' }, '🔮')),
+                    React.createElement('div', {
+                        key: 'text',
+                        className: 'text-xs font-medium opacity-80'
+                    }, 'TAROT')
+                ])))),
+                
+                // 카드 앞면
+                React.createElement('div', {
+                    key: 'front',
+                    className: `absolute inset-0 rounded-lg ${isSelected ? 'shadow-2xl shadow-blue-500/50' : ''}`,
+                    style: { 
+                        backfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)'
+                    }
+                }, card ? React.createElement('div', {
+                    className: 'w-full h-full bg-white rounded-lg overflow-hidden shadow-lg'
+                }, [
+                    // 카드 이미지 영역
+                    React.createElement('div', {
+                        key: 'image-area',
+                        className: 'h-3/4 bg-white relative overflow-hidden p-1'
+                    }, [
+                        card.image ? React.createElement('img', {
+                            key: 'image',
+                            src: card.image,
+                            alt: card.nameKo,
+                            className: 'w-full h-full object-contain'
+                        }) : React.createElement('div', {
+                            key: 'placeholder',
+                            className: 'w-full h-full flex items-center justify-center bg-gradient-secondary'
+                        }, React.createElement('span', { className: 'text-white text-4xl' }, '🃏')),
+                        
+                        // 카드 번호
+                        card.number && React.createElement('div', {
+                            key: 'number',
+                            className: 'absolute top-2 left-2 w-6 h-6 bg-white bg-opacity-90 rounded-full flex items-center justify-center'
+                        }, React.createElement('span', { className: 'text-xs font-bold text-gray-800' }, card.number)),
+                        
+                        // 뒤집힌 상태
+                        card.reversed && React.createElement('div', {
+                            key: 'reversed',
+                            className: 'absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center'
+                        }, React.createElement('span', { className: 'text-white text-xs' }, '↓'))
+                    ]),
+                    
+                    // 카드 정보 영역
+                    React.createElement('div', {
+                        key: 'info-area',
+                        className: 'h-1/4 p-2 bg-white relative'
+                    }, [
+                        React.createElement('h3', {
+                            key: 'title',
+                            className: 'font-semibold text-gray-900 text-sm leading-tight'
+                        }, card.nameKo),
+                        
+                        showDetails && React.createElement('div', {
+                            key: 'details',
+                            className: 'mt-1'
+                        }, React.createElement('p', {
+                            className: 'text-xs text-gray-600 line-clamp-2'
+                        }, card.keywords.slice(0, 3).join(', '))),
+                        
+                        // 수트 표시
+                        card.suit && React.createElement('div', {
+                            key: 'suit',
+                            className: 'absolute bottom-1 right-1'
+                        }, React.createElement('span', {
+                            className: 'text-xs text-gray-400 uppercase'
+                        }, card.suit))
+                    ])
+                ]) : React.createElement('div', {
+                    className: 'w-full h-full bg-gray-200 rounded-lg flex items-center justify-center'
+                }, React.createElement('div', {
+                    className: 'text-gray-400 text-center'
+                }, [
+                    React.createElement('div', { key: 'icon', className: 'text-2xl mb-1' }, '🃏'),
+                    React.createElement('div', { key: 'text', className: 'text-xs' }, '카드')
+                ])))
+            ]);
+        }
+        
+        // CardDeck 컴포넌트
+        function CardDeck({
+            cards,
+            maxVisible = 5,
+            isShuffling = false,
+            canShuffle = true,
+            onShuffle,
+            onCardSelect,
+            className = ''
+        }) {
+            const [selectedIndex, setSelectedIndex] = useState(null);
+            const [hoveredIndex, setHoveredIndex] = useState(null);
+
+            const handleShuffle = useCallback(() => {
+                if (onShuffle && !isShuffling) {
+                    onShuffle();
+                }
+            }, [onShuffle, isShuffling]);
+
+            const handleCardSelect = useCallback((index) => {
+                if (onCardSelect && cards[index]) {
+                    setSelectedIndex(index);
+                    onCardSelect(cards[index], index);
+                }
+            }, [onCardSelect, cards]);
+
+            const visibleCards = cards.slice(0, maxVisible);
+
+            return React.createElement('div', {
+                className: `relative ${className}`
+            }, React.createElement('div', {
+                className: 'relative flex justify-center items-center min-h-[200px]'
+            }, React.createElement(AnimatePresence, { mode: "wait" }, [
+                isShuffling ? React.createElement(motion.div, {
+                    key: 'shuffling',
+                    initial: { opacity: 0, scale: 0.8 },
+                    animate: { opacity: 1, scale: 1 },
+                    exit: { opacity: 0, scale: 0.8 },
+                    className: 'text-center'
+                }, [
+                    React.createElement(motion.div, {
+                        key: 'spinner',
+                        animate: { rotate: 360 },
+                        transition: { duration: 1, repeat: Infinity, ease: "linear" },
+                        className: 'w-16 h-16 mx-auto mb-4 bg-gradient-primary rounded-full flex items-center justify-center'
+                    }, React.createElement(ShuffleIcon, { className: 'w-8 h-8 text-white' })),
+                    React.createElement('p', {
+                        key: 'text',
+                        className: 'text-white opacity-80'
+                    }, '카드를 섞고 있습니다...')
+                ]) : React.createElement(motion.div, {
+                    key: 'deck',
+                    initial: { opacity: 0, y: 20 },
+                    animate: { opacity: 1, y: 0 },
+                    className: 'relative'
+                }, [
+                    // 스택된 카드들
+                    React.createElement('div', {
+                        key: 'cards',
+                        className: 'relative'
+                    }, visibleCards.map((card, index) => {
+                        const isLast = index === visibleCards.length - 1;
+                        const isHovered = hoveredIndex === index;
+                        const isSelected = selectedIndex === index;
+                        
+                        return React.createElement(motion.div, {
+                            key: `${card.id}-${index}`,
+                            className: 'absolute',
+                            style: {
+                                zIndex: maxVisible - index,
+                                left: `${index * 2}px`,
+                                top: `${index * -1}px`,
+                            },
+                            initial: {
+                                x: 0,
+                                y: 0,
+                                rotate: 0,
+                                scale: 1
+                            },
+                            animate: {
+                                x: isHovered || isSelected ? 10 : 0,
+                                y: isHovered || isSelected ? -10 : 0,
+                                rotate: isHovered ? 5 : index * 0.5,
+                                scale: isSelected ? 1.1 : isHovered ? 1.05 : 1
+                            },
+                            whileHover: {
+                                scale: 1.05,
+                                rotate: 5,
+                                x: 10,
+                                y: -10
+                            },
+                            onMouseEnter: () => setHoveredIndex(index),
+                            onMouseLeave: () => setHoveredIndex(null),
+                            onClick: () => handleCardSelect(index)
+                        }, React.createElement(TarotCard, {
+                            card: isLast ? undefined : card,
+                            size: "lg",
+                            isRevealed: false,
+                            isSelected: isSelected,
+                            isInteractive: true,
+                            className: `cursor-pointer transition-all duration-300 ${isHovered ? 'shadow-2xl' : 'shadow-lg'}`
+                        }));
+                    })),
+                    
+                    // 덱 정보
+                    React.createElement('div', {
+                        key: 'info',
+                        className: 'mt-32 text-center'
+                    }, [
+                        React.createElement('p', {
+                            key: 'count',
+                            className: 'text-white opacity-60 text-sm'
+                        }, `${cards.length}장의 카드`),
+                        
+                        canShuffle && React.createElement('button', {
+                            key: 'shuffle-btn',
+                            onClick: handleShuffle,
+                            className: 'mt-4 btn-ghost flex items-center gap-2 mx-auto',
+                            disabled: isShuffling
+                        }, [
+                            React.createElement(ShuffleIcon, { key: 'icon', className: 'w-4 h-4' }),
+                            React.createElement('span', { key: 'text' }, '섞기')
+                        ])
+                    ])
+                ])
+            ])));
+        }
+        
+        // 메인 테스트 앱
+        function TarotTestApp() {
+            const [isShuffling, setIsShuffling] = useState(false);
+            const [selectedCard, setSelectedCard] = useState(null);
+            const [cards, setCards] = useState(sampleCards);
+            
+            React.useEffect(() => {
+                // Lucide 아이콘 초기화
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, [isShuffling, selectedCard]); // 상태 변경 시마다 아이콘 재초기화
+            
+            const handleShuffle = () => {
+                setIsShuffling(true);
+                setTimeout(() => {
+                    const shuffled = [...cards].sort(() => Math.random() - 0.5);
+                    setCards(shuffled);
+                    setIsShuffling(false);
+                }, 2000);
+            };
+            
+            const handleCardSelect = (card, index) => {
+                setSelectedCard(card);
+                console.log('Selected card:', card, 'at index:', index);
+            };
+            
+            return React.createElement('div', {
+                className: 'figma-design min-h-screen p-6'
+            }, [
+                React.createElement('div', {
+                    key: 'header',
+                    className: 'text-center mb-8'
+                }, [
+                    React.createElement('h1', {
+                        key: 'title',
+                        className: 'text-4xl font-bold text-white mb-4'
+                    }, '🔮 타로카드 컴포넌트 테스트'),
+                    React.createElement('p', {
+                        key: 'desc',
+                        className: 'text-white opacity-70 text-lg'
+                    }, '개별 카드와 카드덱 인터랙션을 테스트해보세요')
+                ]),
+                
+                React.createElement('div', {
+                    key: 'content',
+                    className: 'max-w-4xl mx-auto space-y-12'
+                }, [
+                    // 개별 카드 테스트
+                    React.createElement('div', {
+                        key: 'single-cards',
+                        className: 'card-container'
+                    }, [
+                        React.createElement('h2', {
+                            key: 'title',
+                            className: 'text-2xl font-bold text-white mb-6'
+                        }, '개별 타로카드 테스트'),
+                        React.createElement('div', {
+                            key: 'cards-grid',
+                            className: 'grid grid-cols-1 md:grid-cols-3 gap-8 justify-items-center'
+                        }, sampleCards.map((card, index) => 
+                            React.createElement('div', {
+                                key: card.id,
+                                className: 'text-center'
+                            }, [
+                                React.createElement(TarotCard, {
+                                    key: 'card',
+                                    card: card,
+                                    size: 'lg',
+                                    isRevealed: true,
+                                    showDetails: true,
+                                    isInteractive: true,
+                                    onClick: () => alert(`${card.nameKo} 카드를 클릭했습니다!`)
+                                }),
+                                React.createElement('p', {
+                                    key: 'name',
+                                    className: 'text-white mt-2 text-sm'
+                                }, card.nameKo)
+                            ])
+                        ))
+                    ]),
+                    
+                    // 카드덱 테스트
+                    React.createElement('div', {
+                        key: 'deck-test',
+                        className: 'card-container'
+                    }, [
+                        React.createElement('h2', {
+                            key: 'title',
+                            className: 'text-2xl font-bold text-white mb-6 text-center'
+                        }, '카드덱 인터랙션 테스트'),
+                        React.createElement(CardDeck, {
+                            key: 'deck',
+                            cards: cards,
+                            maxVisible: 3,
+                            isShuffling: isShuffling,
+                            canShuffle: true,
+                            onShuffle: handleShuffle,
+                            onCardSelect: handleCardSelect,
+                            className: 'mb-6'
+                        }),
+                        selectedCard && React.createElement('div', {
+                            key: 'selected-info',
+                            className: 'text-center mt-8 p-4 bg-white bg-opacity-10 rounded-lg'
+                        }, [
+                            React.createElement('h3', {
+                                key: 'title',
+                                className: 'text-white font-bold text-lg mb-2'
+                            }, '선택된 카드'),
+                            React.createElement('p', {
+                                key: 'name',
+                                className: 'text-white text-xl'
+                            }, selectedCard.nameKo),
+                            React.createElement('p', {
+                                key: 'keywords',
+                                className: 'text-white opacity-70 mt-2'
+                            }, selectedCard.keywords.join(', '))
+                        ])
+                    ])
+                ])
+            ]);
+        }
+        
+        // 앱 렌더링
+        ReactDOM.render(React.createElement(TarotTestApp), document.getElementById('root'));
+    </script>
+</body>
+</html>

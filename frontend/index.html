@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard.app - AI 영혼 타로카드</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="public/css/figma-design-system.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d3748 50%, #1a202c 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0aec0;
+            margin-bottom: 2rem;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .status-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+        }
+        
+        .status-item h3 {
+            color: #4fd1c7;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item p {
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .nav-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-card">
+            <div class="logo">🔮</div>
+            <h1 class="title">SoulCard.app</h1>
+            <p class="subtitle">AI가 해석하는 영혼의 타로카드 서비스</p>
+            
+            <div class="status-grid">
+                <div class="status-item">
+                    <h3>✅ 프로젝트 상태</h3>
+                    <p>HTML/JS 기반 개발 진행 중<br>Figma 디자인 통합 완료</p>
+                </div>
+                <div class="status-item">
+                    <h3>🏗️ 아키텍처</h3>
+                    <p>Frontend/Backend 분리<br>모듈화된 구조 완성</p>
+                </div>
+                <div class="status-item">
+                    <h3>🎨 UI 시스템</h3>
+                    <p>Figma 디자인 시스템<br>78장 타로카드 이미지</p>
+                </div>
+                <div class="status-item">
+                    <h3>🤖 AI 엔진</h3>
+                    <p>xAI API 연동 완료<br>4가지 리딩 타입 지원</p>
+                </div>
+            </div>
+            
+            <div class="nav-links">
+                <a href="public/figma-app.html" class="nav-link">
+                    🎨 Figma 앱 보기
+                </a>
+                <a href="public/index.html" class="nav-link">
+                    🌟 메인 페이지
+                </a>
+                <a href="../docs/README.md" class="nav-link">
+                    📚 문서 보기
+                </a>
+                <a href="../backend/" class="nav-link">
+                    🔧 백엔드 API
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

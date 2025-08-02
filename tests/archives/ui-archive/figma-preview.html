@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 SoulCard.app - Figma Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Figma Design System CSS -->
+    <link rel="stylesheet" href="css/figma-design-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--figma-gradient-dark);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--figma-gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .preview-card {
+            background: var(--figma-gradient-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--figma-card-border-radius);
+            padding: 24px;
+            transition: var(--figma-card-transition);
+        }
+
+        .preview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--figma-card-glow);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--figma-accent-purple);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Figma 컴포넌트 데모들 */
+        .figma-design .demo-section {
+            margin-bottom: 30px;
+        }
+
+        .figma-design .demo-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--figma-primary-400);
+        }
+
+        .figma-design .demo-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .navigation-link {
+            display: inline-block;
+            background: var(--figma-gradient-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--figma-transition-normal);
+            margin: 10px;
+        }
+
+        .navigation-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--figma-card-shadow);
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: var(--figma-success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .mobile-preview {
+            width: 393px;
+            height: 600px;
+            background: var(--figma-gradient-dark);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-notch {
+            width: 60%;
+            height: 20px;
+            background: #000;
+            border-radius: 0 0 15px 15px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .mobile-preview {
+                width: 100%;
+                max-width: 350px;
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🔮 SoulCard Figma Preview</h1>
+            <p class="subtitle">Figma Make으로 생성된 디자인 시스템 미리보기</p>
+            <span class="status-badge">✅ Phase 1 완료</span>
+        </div>
+
+        <div class="navigation-links" style="text-align: center; margin-bottom: 40px;">
+            <a href="/" class="navigation-link">🏠 메인 페이지</a>
+            <a href="#css-system" class="navigation-link">🎨 CSS 시스템</a>
+            <a href="#components" class="navigation-link">🧰 컴포넌트</a>
+            <a href="#mobile" class="navigation-link">📱 모바일 뷰</a>
+        </div>
+
+        <div class="preview-grid">
+            <!-- CSS Variables 시스템 -->
+            <div class="preview-card" id="css-system">
+                <h3 class="card-title">🎨 CSS Variables 시스템</h3>
+                <p class="card-description">Figma 디자인 토큰이 CSS Variables로 성공적으로 통합되었습니다.</p>
+                
+                <div class="figma-design">
+                    <div class="demo-section">
+                        <div class="demo-title">컬러 팔레트</div>
+                        <div class="demo-grid">
+                            <div style="width: 40px; height: 40px; background: var(--figma-primary-500); border-radius: 8px;"></div>
+                            <div style="width: 40px; height: 40px; background: var(--figma-accent-purple); border-radius: 8px;"></div>
+                            <div style="width: 40px; height: 40px; background: var(--figma-accent-pink); border-radius: 8px;"></div>
+                            <div style="width: 40px; height: 40px; background: var(--figma-accent-gold); border-radius: 8px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="demo-section">
+                        <div class="demo-title">카테고리 컬러</div>
+                        <div class="demo-grid">
+                            <div style="width: 30px; height: 30px; background: var(--figma-love-color); border-radius: 50%;"></div>
+                            <div style="width: 30px; height: 30px; background: var(--figma-career-color); border-radius: 50%;"></div>
+                            <div style="width: 30px; height: 30px; background: var(--figma-money-color); border-radius: 50%;"></div>
+                            <div style="width: 30px; height: 30px; background: var(--figma-health-color); border-radius: 50%;"></div>
+                            <div style="width: 30px; height: 30px; background: var(--figma-spiritual-color); border-radius: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 버튼 컴포넌트 -->
+            <div class="preview-card" id="components">
+                <h3 class="card-title">🔘 버튼 컴포넌트</h3>
+                <p class="card-description">Figma 디자인 시스템의 버튼 스타일들이 적용되었습니다.</p>
+                
+                <div class="figma-design">
+                    <div class="demo-section">
+                        <div class="demo-title">버튼 Variants</div>
+                        <div class="demo-grid" style="flex-direction: column; align-items: stretch;">
+                            <button class="btn-primary">Primary Button</button>
+                            <button class="btn-secondary">Secondary Button</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카드 컴포넌트 -->
+            <div class="preview-card">
+                <h3 class="card-title">🃏 카드 컴포넌트</h3>
+                <p class="card-description">타로카드 스타일과 애니메이션이 준비되었습니다.</p>
+                
+                <div class="figma-design">
+                    <div class="demo-section">
+                        <div class="demo-title">카드 시스템</div>
+                        <div class="demo-grid">
+                            <div class="tarot-card" style="width: 60px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔮</div>
+                            <div class="tarot-card" style="width: 60px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✨</div>
+                            <div class="tarot-card" style="width: 60px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🌟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TypeScript 타입 -->
+            <div class="preview-card">
+                <h3 class="card-title">📝 TypeScript 타입</h3>
+                <p class="card-description">통합된 타입 시스템으로 안전한 개발 환경이 구축되었습니다.</p>
+                
+                <div class="demo-section">
+                    <div class="demo-title">타입 파일들</div>
+                    <ul style="font-size: 0.9rem; opacity: 0.8; line-height: 1.6;">
+                        <li>✅ types/tarot.ts (기존 AI 백엔드)</li>
+                        <li>✅ types/figma-ui.ts (새로운 UI)</li>
+                        <li>✅ types/index.ts (통합 export)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 의존성 -->
+            <div class="preview-card">
+                <h3 class="card-title">📦 설치된 라이브러리</h3>
+                <p class="card-description">Figma 컴포넌트 동작에 필요한 모든 의존성이 추가되었습니다.</p>
+                
+                <div class="demo-section">
+                    <div class="demo-title">주요 라이브러리</div>
+                    <ul style="font-size: 0.9rem; opacity: 0.8; line-height: 1.6;">
+                        <li>🎭 framer-motion (애니메이션)</li>
+                        <li>🎨 lucide-react (아이콘)</li>
+                        <li>⚛️ React 19.1.1</li>
+                        <li>🎨 Tailwind CSS</li>
+                        <li>📋 React Hook Form</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 빌드 상태 -->
+            <div class="preview-card">
+                <h3 class="card-title">🔧 빌드 상태</h3>
+                <p class="card-description">모든 컴파일 및 타입 체크가 성공적으로 완료되었습니다.</p>
+                
+                <div class="demo-section">
+                    <div class="demo-title">테스트 결과</div>
+                    <ul style="font-size: 0.9rem; line-height: 1.6;">
+                        <li style="color: var(--figma-success);">✅ TypeScript 타입 체크</li>
+                        <li style="color: var(--figma-success);">✅ 프로젝트 빌드</li>
+                        <li style="color: var(--figma-success);">✅ 기존 기능 호환성</li>
+                        <li style="color: var(--figma-success);">✅ CSS 시스템 통합</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모바일 미리보기 -->
+        <div id="mobile" style="text-align: center; margin-top: 50px;">
+            <h3 style="color: var(--figma-accent-purple); margin-bottom: 20px;">📱 모바일 프리뷰 (393×852px)</h3>
+            <div class="mobile-preview">
+                <div class="mobile-notch"></div>
+                <div style="margin-top: 30px; text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">🔮</div>
+                    <h2 style="color: var(--figma-accent-purple); margin-bottom: 10px;">SoulCard</h2>
+                    <p style="opacity: 0.8; margin-bottom: 30px;">AI 영혼 타로카드</p>
+                    
+                    <div class="figma-design" style="padding: 20px;">
+                        <button class="btn-primary" style="width: 100%; margin-bottom: 15px;">
+                            🎯 오늘의 카드 뽑기
+                        </button>
+                        <button class="btn-secondary" style="width: 100%;">
+                            📚 상담 히스토리
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 다음 단계 -->
+        <div style="text-align: center; margin-top: 50px; padding: 30px; background: var(--figma-gradient-card); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 style="color: var(--figma-accent-gold); margin-bottom: 15px;">🚀 다음 단계: Phase 2</h3>
+            <p style="opacity: 0.8; margin-bottom: 20px;">기초 컴포넌트 추가 (Foundations → Atoms → Molecules)</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span style="background: var(--figma-primary-600); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem;">Foundations</span>
+                <span style="background: var(--figma-accent-purple); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem;">Atoms</span>
+                <span style="background: var(--figma-accent-pink); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem;">UI Library</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 간단한 인터랙션
+        document.querySelectorAll('.tarot-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(1.1) rotate(5deg)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 300);
+            });
+        });
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

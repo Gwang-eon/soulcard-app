@@ -1,0 +1,139 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-07-28",
+    "description": "타로 카드 데이터에서 사용되는 모든 열거형 값들의 정의"
+  },
+  
+  "suits": {
+    "values": ["major", "wands", "cups", "swords", "pentacles"],
+    "descriptions": {
+      "major": "메이저 아르카나 - 인생의 중요한 교훈과 영적 여정",
+      "wands": "완드 - 불의 원소, 창조성, 열정, 행동력",
+      "cups": "컵 - 물의 원소, 감정, 직감, 관계",
+      "swords": "소드 - 공기의 원소, 정신, 소통, 갈등",
+      "pentacles": "펜타클 - 땅의 원소, 물질, 실용성, 안정"
+    }
+  },
+  
+  "elements": {
+    "values": ["fire", "water", "air", "earth", null],
+    "descriptions": {
+      "fire": "불 - 에너지, 열정, 창조, 행동",
+      "water": "물 - 감정, 직감, 흐름, 치유",
+      "air": "공기 - 사고, 소통, 논리, 분석",
+      "earth": "땅 - 물질, 안정, 실용, 성장",
+      "null": "메이저 아르카나는 일반적으로 특정 원소에 속하지 않음"
+    }
+  },
+  
+  "categories": {
+    "values": ["general", "love", "career", "money", "health", "spiritual"],
+    "descriptions": {
+      "general": "전반적인 삶의 상황과 조언",
+      "love": "연애, 관계, 감정적 연결",
+      "career": "직업, 일, 성취, 목표",
+      "money": "재정, 투자, 물질적 풍요",
+      "health": "신체적, 정신적 건강과 웰빙",
+      "spiritual": "영적 성장, 깨달음, 내면의 여정"
+    }
+  },
+  
+  "languages": {
+    "values": ["ko", "en"],
+    "descriptions": {
+      "ko": "한국어",
+      "en": "영어"
+    }
+  },
+  
+  "orientations": {
+    "values": ["upright", "reversed"],
+    "descriptions": {
+      "upright": "정방향 - 카드의 기본적이고 긍정적인 의미",
+      "reversed": "역방향 - 카드의 반대되거나 부정적인 의미, 또는 내적 변화"
+    }
+  },
+  
+  "priorities": {
+    "values": ["low", "medium", "high"],
+    "descriptions": {
+      "low": "낮은 우선순위",
+      "medium": "중간 우선순위", 
+      "high": "높은 우선순위"
+    }
+  },
+  
+  "strengths": {
+    "values": ["weak", "moderate", "strong", "very_strong", "extremely_strong", "maximum"],
+    "descriptions": {
+      "weak": "약한 영향력",
+      "moderate": "보통 영향력",
+      "strong": "강한 영향력",
+      "very_strong": "매우 강한 영향력",
+      "extremely_strong": "극도로 강한 영향력",
+      "maximum": "최대 영향력"
+    }
+  },
+  
+  "combinationTypes": {
+    "values": ["major_major", "major_minor", "minor_minor", "suit_based"],
+    "descriptions": {
+      "major_major": "메이저 아르카나끼리의 조합",
+      "major_minor": "메이저와 마이너 아르카나의 조합",
+      "minor_minor": "마이너 아르카나끼리의 조합",
+      "suit_based": "같은 수트나 수트 간의 조합"
+    }
+  },
+  
+  "spreadTypes": {
+    "values": ["past_present_future", "situation_action_outcome", "relationship", "celtic_cross"],
+    "descriptions": {
+      "past_present_future": "과거-현재-미래 3장 스프레드",
+      "situation_action_outcome": "상황-행동-결과 3장 스프레드",
+      "relationship": "관계 전용 스프레드",
+      "celtic_cross": "켈틱 크로스 10장 스프레드"
+    }
+  },
+  
+  "emotions": {
+    "values": ["positive", "negative", "neutral", "anxious", "hopeful"],
+    "descriptions": {
+      "positive": "긍정적 감정 상태",
+      "negative": "부정적 감정 상태",
+      "neutral": "중립적 감정 상태",
+      "anxious": "걱정, 불안한 상태",
+      "hopeful": "희망적, 기대하는 상태"
+    }
+  },
+  
+  "urgency": {
+    "values": ["low", "medium", "high"],
+    "descriptions": {
+      "low": "낮은 긴급도 - 천천히 고려할 수 있음",
+      "medium": "중간 긴급도 - 적절한 시기에 결정 필요",
+      "high": "높은 긴급도 - 빠른 결정이나 행동 필요"
+    }
+  },
+  
+  "specificity": {
+    "values": ["vague", "general", "specific", "very_specific"],
+    "descriptions": {
+      "vague": "모호한 질문",
+      "general": "일반적인 질문",
+      "specific": "구체적인 질문",
+      "very_specific": "매우 구체적이고 세부적인 질문"
+    }
+  },
+  
+  "rarity": {
+    "values": ["common", "uncommon", "rare", "very_rare", "extremely_rare"],
+    "descriptions": {
+      "common": "흔한 패턴",
+      "uncommon": "드문 패턴",
+      "rare": "희귀한 패턴",
+      "very_rare": "매우 희귀한 패턴",
+      "extremely_rare": "극도로 희귀한 패턴"
+    }
+  }
+}
