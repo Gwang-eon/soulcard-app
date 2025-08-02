@@ -42,6 +42,25 @@ interface CardDeckTier {
 - 🤖 **AI 리딩**: 구매형 고급 해석 서비스
 - 🔮 **향후 확장**: 다양한 리딩 방법 추가 예정
 
+### **다국어 지원 시스템**
+```typescript
+interface LanguageSupport {
+  primary: 'ko',
+  supported: ['en', 'ja', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'pt', 'ru'],
+  features: {
+    ui: 'Full UI translation',
+    cards: 'Card names and meanings',
+    readings: 'AI interpretation in user language',
+    tts: 'Text-to-speech in native language'
+  }
+}
+```
+
+### **글로벌 시장 대응**
+- 🌍 **10개 언어 지원**: 한국어(기본) + 영어, 일본어, 중국어(간체/번체), 스페인어, 프랑스어, 독일어, 포르투갈어, 러시아어
+- 🎯 **문화적 적응**: 지역별 타로 해석 스타일 차별화
+- 💱 **현지화**: 각 국가별 통화 및 결제 시스템 지원
+
 ---
 
 ## 🎯 **핵심 개발 원칙**
@@ -67,7 +86,7 @@ graph LR
 
 ## 🗓️ **주차별 통합 개발 계획**
 
-### **Week 1: 기본 인증 및 보석(토큰) 시스템**
+### **Week 1: 기본 인증 및 보석(토큰) 시스템 + 다국어 기반**
 
 #### **동시 진행 작업**
 ```typescript
@@ -76,15 +95,30 @@ graph LR
 ├── LoginScreen.tsx          // 로그인 화면
 ├── SignupScreen.tsx         // 회원가입 화면
 ├── ProfileScreen.tsx        // 프로필 관리
+├── LanguageSelector.tsx     // 🌍 언어 선택
 ├── GemWallet.tsx           // 💎 보석 지갑
 └── AuthContext.tsx          // 인증 상태 관리
 
+// 🌍 Internationalization
+/i18n/
+├── index.ts                 // i18n 설정
+├── locales/
+│   ├── ko.json             // 한국어 (기본)
+│   ├── en.json             // 영어
+│   ├── ja.json             // 일본어
+│   ├── zh-CN.json          // 중국어(간체)
+│   └── [8 more languages]  // 기타 언어들
+└── utils/
+    ├── translator.ts        // 번역 유틸리티
+    └── currency.ts          // 통화 변환
+
 // 🔧 Backend (Supabase)
 /database/auth/
-├── users-table.sql          // 사용자 테이블
+├── users-table.sql          // 사용자 테이블 (언어 설정 포함)
 ├── profiles-table.sql       // 프로필 테이블
 ├── gems-wallet-table.sql    // 💎 보석 지갑 테이블
 ├── gem-transactions-table.sql // 💎 거래 내역
+├── user-preferences-table.sql // 사용자 설정 (언어, 지역)
 ├── rls-policies.sql         // 보안 정책
 └── auth-triggers.sql        // 자동 트리거
 
@@ -94,10 +128,11 @@ graph LR
 ├── login.ts                 // 로그인 API
 ├── profile.ts               // 프로필 API
 ├── gem-wallet.ts            // 💎 보석 지갑 API
+├── language-settings.ts     // 언어 설정 API
 └── session.ts               // 세션 관리
 ```
 
-#### **1일차: API 설계 & DB 스키마**
+#### **1일차: API 설계 & DB 스키마 (다국어 지원)**
 ```sql
 -- 동시 작업: DB 테이블 + API 인터페이스
 CREATE TABLE users (
@@ -105,14 +140,29 @@ CREATE TABLE users (
   email TEXT UNIQUE NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   visit_count INTEGER DEFAULT 0,
-  last_visit DATE
+  last_visit DATE,
+  preferred_language TEXT DEFAULT 'ko', -- 사용자 선호 언어
+  timezone TEXT DEFAULT 'Asia/Seoul'    -- 사용자 시간대
 );
 
 CREATE TABLE user_profiles (
   user_id UUID REFERENCES users(id),
   display_name TEXT,
   birth_date DATE,
-  preferences JSONB
+  preferences JSONB,
+  country_code TEXT DEFAULT 'KR',       -- 국가 코드
+  currency_code TEXT DEFAULT 'KRW'      -- 통화 코드
+);
+
+-- 🌍 다국어 설정 테이블
+CREATE TABLE user_preferences (
+  user_id UUID REFERENCES users(id) PRIMARY KEY,
+  language TEXT DEFAULT 'ko',
+  region TEXT DEFAULT 'KR',
+  currency TEXT DEFAULT 'KRW',
+  date_format TEXT DEFAULT 'YYYY-MM-DD',
+  time_format TEXT DEFAULT '24h',
+  updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- 💎 보석(토큰) 시스템
@@ -137,7 +187,7 @@ CREATE TABLE gem_transactions (
 ```typescript
 // API 타입 정의 (프론트엔드와 공유)
 interface AuthAPI {
-  register(email: string, password: string): Promise<User>;
+  register(email: string, password: string, language?: string): Promise<User>;
   login(email: string, password: string): Promise<Session>;
   getProfile(userId: string): Promise<UserProfile>;
 }
@@ -149,10 +199,29 @@ interface GemAPI {
   getTransactionHistory(userId: string): Promise<GemTransaction[]>;
 }
 
-interface GemWallet {
-  gems_balance: number;
-  total_earned: number;
-  total_spent: number;
+// 🌍 다국어 API
+interface LanguageAPI {
+  getUserLanguage(userId: string): Promise<UserPreferences>;
+  setUserLanguage(userId: string, preferences: UserPreferences): Promise<void>;
+  getAvailableLanguages(): Promise<LanguageOption[]>;
+  translateText(text: string, fromLang: string, toLang: string): Promise<string>;
+}
+
+interface UserPreferences {
+  language: string;
+  region: string;
+  currency: string;
+  timezone: string;
+  date_format: string;
+  time_format: string;
+}
+
+interface LanguageOption {
+  code: string;      // 'ko', 'en', 'ja' 등
+  name: string;      // '한국어', 'English', '日本語'
+  nativeName: string; // 현지어로 된 언어명
+  flag: string;      // 국기 이모지
+  supported: boolean; // 지원 여부
 }
 ```
 
@@ -190,7 +259,7 @@ export default async function handler(req: Request) {
 
 ---
 
-### **Week 2: 카드덱 시스템 & AI 타로 리딩**
+### **Week 2: 카드덱 시스템 & AI 타로 리딩 (다국어 AI)**
 
 #### **동시 진행 작업**
 ```typescript
@@ -200,49 +269,90 @@ export default async function handler(req: Request) {
 ├── DeckUnlock.tsx           // 덱 해금 시스템
 ├── CardSelection.tsx        // 카드 선택
 ├── ReadingDisplay.tsx       // 결과 표시
-├── TTSPlayer.tsx            // 📖 TTS 리딩
-└── PremiumReading.tsx       // 🤖 구매형 AI 리딩
+├── TTSPlayer.tsx            // 📖 TTS 리딩 (다국어)
+├── PremiumReading.tsx       // 🤖 구매형 AI 리딩
+└── LanguageSwitch.tsx       // 실시간 언어 전환
+
+// 🌍 Multilingual Content
+/content/
+├── cards/
+│   ├── names/               // 카드 이름 번역
+│   │   ├── ko.json         // 한국어 카드명
+│   │   ├── en.json         // 영어 카드명
+│   │   └── [8 more]        // 기타 언어
+│   └── meanings/            // 카드 의미 번역
+│       ├── ko.json         // 한국어 의미
+│       ├── en.json         // 영어 의미
+│       └── [8 more]        // 기타 언어
+└── spreads/
+    ├── descriptions/        // 스프레드 설명
+    └── instructions/        // 사용 방법
 
 // 🔧 Backend
 /database/cards/
 ├── card-decks-table.sql     // 카드덱 테이블
 ├── user-decks-table.sql     // 사용자 보유 덱
 ├── cards-table.sql          // 개별 카드 정보
+├── card-translations-table.sql // 카드 번역 테이블
 ├── consultations-table.sql  // 상담 세션
 ├── readings-table.sql       // 리딩 결과
 └── unlock-progress-table.sql // 덱 해금 진도
 
 // 🌐 API
 /api/cards/
-├── get-decks.ts             // 덱 목록 조회
+├── get-decks.ts             // 덱 목록 조회 (언어별)
 ├── unlock-deck.ts           // 덱 해금 처리
 ├── purchase-deck.ts         // 💎 덱 구매
-├── generate-reading.ts      // AI 해석 생성
-├── text-to-speech.ts        // TTS 생성
+├── generate-reading.ts      // AI 해석 생성 (다국어)
+├── text-to-speech.ts        // TTS 생성 (다국어)
+├── translate-reading.ts     // 리딩 결과 번역
 └── premium-reading.ts       // 프리미엄 리딩
 ```
 
 #### **상세 구현 스케줄**
-**1일차**: 카드덱 데이터베이스 + 기본/커스텀/프리미엄 덱 설정
-**2일차**: 덱 해금 시스템 (방문횟수, SNS홍보, 친구초대)
-**3일차**: 💎 보석 기반 덱 구매 시스템
-**4일차**: AI 리딩 생성 + TTS 음성 변환
-**5일차**: 프리미엄 리딩 서비스 + UI 완성
+**1일차**: 카드덱 데이터베이스 + 다국어 카드 번역 시스템 구축
+**2일차**: 덱 해금 시스템 + 언어별 UI 텍스트 적용
+**3일차**: 💎 보석 기반 덱 구매 시스템 (통화별 가격 설정)
+**4일차**: 다국어 AI 리딩 생성 + 언어별 TTS 음성 변환
+**5일차**: 언어 전환 기능 + 실시간 번역 시스템 완성
 
-#### **카드덱 데이터 구조**
+#### **카드덱 데이터 구조 (다국어 지원)**
 ```sql
 -- 카드덱 정보
 CREATE TABLE card_decks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT NOT NULL,
+  name_key TEXT NOT NULL,              -- 번역 키 (예: 'deck.basic.name')
   tier TEXT CHECK (tier IN ('basic', 'custom', 'premium')) NOT NULL,
   price_gems INTEGER DEFAULT 0,
   unlock_method TEXT, -- 'default', 'visit_count', 'sns_share', 'friend_invite', 'purchase'
   unlock_requirement INTEGER, -- 방문 횟수 또는 필요 보석 수
   artwork_style TEXT, -- 'classic', 'mystic', 'angel', 'dragon', 'golden', 'crystal', 'animated'
-  description TEXT,
+  description_key TEXT,                -- 설명 번역 키
   is_animated BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 🌍 카드 번역 테이블
+CREATE TABLE card_translations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  card_id TEXT NOT NULL,              -- 카드 식별자 (예: 'the-fool')
+  language_code TEXT NOT NULL,        -- 언어 코드 (ko, en, ja 등)
+  name TEXT NOT NULL,                 -- 번역된 카드 이름
+  meaning TEXT,                       -- 번역된 카드 의미
+  description TEXT,                   -- 번역된 카드 설명
+  keywords TEXT[],                    -- 번역된 키워드들
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(card_id, language_code)
+);
+
+-- 💰 통화별 가격 테이블
+CREATE TABLE deck_pricing (
+  deck_id UUID REFERENCES card_decks(id),
+  currency_code TEXT NOT NULL,        -- KRW, USD, JPY, EUR 등
+  price_local DECIMAL(10,2),          -- 현지 통화 가격
+  price_gems INTEGER,                 -- 보석 가격 (글로벌 동일)
+  updated_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (deck_id, currency_code)
 );
 
 -- 사용자 보유 덱
@@ -474,10 +584,11 @@ Co-authored-by: Backend-Dev <backend@team.com>"
 - **수익성**: 💎 보석 기반 건전한 수익 모델
 
 ### **기능 완성도**
-- **카드덱**: 기본 1개 + 커스텀 3개 + 프리미엄 4개
+- **카드덱**: 기본 1개 + 커스텀 3개 + 프리미엄 4개 (10개 언어 지원)
 - **해금 시스템**: 방문횟수, SNS홍보, 친구초대
-- **AI 서비스**: 기본 리딩 + TTS + 프리미엄 리딩
-- **결제**: 💎 보석 인앱구매, 영수증 검증
+- **AI 서비스**: 다국어 기본 리딩 + 다국어 TTS + 프리미엄 리딩
+- **결제**: 💎 보석 인앱구매, 영수증 검증, 통화별 가격 설정
+- **다국어**: 10개 언어 완전 지원 (UI + 카드 + AI 해석)
 
 ### **기술 품질**
 - **테스트 커버리지**: 90%+ (결제 시스템 중요)
@@ -506,6 +617,7 @@ Co-authored-by: Backend-Dev <backend@team.com>"
 - 💎 **보석 기반 수익화** (건전한 모델)
 - 🔒 **보안성 최우선** (결제 정보 보호)
 - 📱 **사용자 친화적** (직관적 UI/UX)
+- 🌍 **글로벌 진출 준비** (10개 언어 완벽 지원)
 
 ---
 
