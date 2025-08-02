@@ -39,7 +39,9 @@ interface CardDeckTier {
 
 ### **리딩 서비스**
 - 📖 **TTS 리딩**: 음성으로 결과 읽어주기
-- 🤖 **AI 리딩**: 구매형 고급 해석 서비스
+- 🤖 **AI 리딩**: 구매형 고급 해석 서비스 (비동기 처리)
+- 📱 **백그라운드 처리**: AI 리딩 중 앱 종료해도 완료시 푸시 알림
+- 💎 **보석 보호**: 결제 후 AI 처리 실패시 자동 환불 시스템
 - 🔮 **향후 확장**: 다양한 리딩 방법 추가 예정
 
 ### **다국어 지원 시스템**
@@ -119,6 +121,8 @@ graph LR
 ├── gems-wallet-table.sql    // 💎 보석 지갑 테이블
 ├── gem-transactions-table.sql // 💎 거래 내역
 ├── user-preferences-table.sql // 사용자 설정 (언어, 지역)
+├── reading-history-table.sql   // 📚 리딩 히스토리 테이블
+├── reading-sessions-table.sql  // 📖 리딩 세션 테이블
 ├── rls-policies.sql         // 보안 정책
 └── auth-triggers.sql        // 자동 트리거
 
@@ -129,6 +133,7 @@ graph LR
 ├── profile.ts               // 프로필 API
 ├── gem-wallet.ts            // 💎 보석 지갑 API
 ├── language-settings.ts     // 언어 설정 API
+├── reading-history.ts       // 📚 리딩 히스토리 API
 └── session.ts               // 세션 관리
 ```
 
@@ -163,6 +168,76 @@ CREATE TABLE user_preferences (
   date_format TEXT DEFAULT 'YYYY-MM-DD',
   time_format TEXT DEFAULT '24h',
   updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 📚 리딩 히스토리 테이블
+CREATE TABLE reading_history (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  session_id UUID,                    -- 리딩 세션 ID
+  reading_type TEXT NOT NULL,         -- 'single', 'three-card', 'relationship', 'celtic-cross'
+  question TEXT NOT NULL,             -- 사용자 질문
+  selected_cards JSONB NOT NULL,      -- 선택된 카드들 정보
+  ai_interpretation TEXT,             -- AI 해석 결과
+  reading_language TEXT DEFAULT 'ko', -- 리딩 언어
+  deck_used TEXT,                     -- 사용된 카드덱
+  is_premium BOOLEAN DEFAULT FALSE,   -- 프리미엄 리딩 여부
+  gems_spent INTEGER DEFAULT 0,      -- 사용된 보석 수
+  user_rating INTEGER,               -- 사용자 평점 (1-5)
+  is_favorite BOOLEAN DEFAULT FALSE, -- 즐겨찾기 여부
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 📖 리딩 세션 테이블 (실시간 진행 상태 + 비동기 처리)
+CREATE TABLE reading_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  status TEXT DEFAULT 'started',     -- 'started', 'payment_confirmed', 'cards_selected', 'ai_processing', 'completed', 'failed', 'cancelled'
+  reading_type TEXT NOT NULL,
+  question TEXT,
+  selected_cards JSONB,
+  deck_used TEXT,
+  is_premium BOOLEAN DEFAULT FALSE,
+  gems_reserved INTEGER DEFAULT 0,   -- 예약된 보석 (처리 완료시 차감)
+  gems_charged INTEGER DEFAULT 0,    -- 실제 차감된 보석
+  ai_job_id TEXT,                    -- AI 처리 작업 ID
+  ai_started_at TIMESTAMP,           -- AI 처리 시작 시간
+  ai_completed_at TIMESTAMP,         -- AI 처리 완료 시간
+  progress INTEGER DEFAULT 0,        -- 진행률 (0-100)
+  error_message TEXT,                -- 오류 메시지
+  retry_count INTEGER DEFAULT 0,     -- 재시도 횟수
+  notification_sent BOOLEAN DEFAULT FALSE, -- 푸시 알림 발송 여부
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 📱 푸시 알림 테이블
+CREATE TABLE push_notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  session_id UUID REFERENCES reading_sessions(id),
+  notification_type TEXT NOT NULL,   -- 'reading_completed', 'reading_failed', 'refund_processed'
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  data JSONB,                        -- 추가 데이터 (deep link 등)
+  device_tokens TEXT[],              -- 사용자의 디바이스 토큰들
+  sent_at TIMESTAMP,                 -- 발송 시간
+  delivery_status TEXT DEFAULT 'pending', -- 'pending', 'sent', 'delivered', 'failed'
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 💎 보석 예약/환불 테이블
+CREATE TABLE gem_reservations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  session_id UUID REFERENCES reading_sessions(id),
+  amount INTEGER NOT NULL,           -- 예약/환불 보석 수
+  type TEXT NOT NULL,               -- 'reserve', 'charge', 'refund'
+  status TEXT DEFAULT 'pending',    -- 'pending', 'completed', 'failed'
+  reason TEXT,                      -- 예약/환불 사유
+  processed_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- 💎 보석(토큰) 시스템
@@ -207,6 +282,81 @@ interface LanguageAPI {
   translateText(text: string, fromLang: string, toLang: string): Promise<string>;
 }
 
+// 📚 리딩 히스토리 API
+interface ReadingHistoryAPI {
+  saveReading(reading: ReadingRecord): Promise<ReadingRecord>;
+  getUserHistory(userId: string, page?: number, limit?: number): Promise<ReadingHistory>;
+  getReadingById(readingId: string): Promise<ReadingRecord>;
+  updateReading(readingId: string, updates: Partial<ReadingRecord>): Promise<void>;
+  deleteReading(readingId: string): Promise<void>;
+  getFavoriteReadings(userId: string): Promise<ReadingRecord[]>;
+  rateReading(readingId: string, rating: number): Promise<void>;
+  shareReading(readingId: string): Promise<string>; // 공유 URL 반환
+}
+
+// 🔄 비동기 AI 리딩 API
+interface AsyncReadingAPI {
+  startReading(sessionData: ReadingSessionData): Promise<ReadingSession>;
+  checkReadingStatus(sessionId: string): Promise<ReadingSession>;
+  reserveGems(userId: string, amount: number, sessionId: string): Promise<GemReservation>;
+  processGemPayment(reservationId: string): Promise<void>;
+  refundGems(reservationId: string, reason: string): Promise<void>;
+  cancelReading(sessionId: string): Promise<void>;
+  retryFailedReading(sessionId: string): Promise<void>;
+}
+
+// 📱 푸시 알림 API
+interface PushNotificationAPI {
+  registerDevice(userId: string, deviceToken: string, platform: 'ios' | 'android'): Promise<void>;
+  sendReadingCompletedNotification(sessionId: string): Promise<void>;
+  sendReadingFailedNotification(sessionId: string, reason: string): Promise<void>;
+  sendRefundNotification(userId: string, amount: number): Promise<void>;
+  getUserNotificationHistory(userId: string): Promise<PushNotification[]>;
+}
+
+interface ReadingSession {
+  id: string;
+  user_id: string;
+  status: 'started' | 'payment_confirmed' | 'cards_selected' | 'ai_processing' | 'completed' | 'failed' | 'cancelled';
+  reading_type: string;
+  question: string;
+  selected_cards?: any[];
+  gems_reserved: number;
+  gems_charged: number;
+  ai_job_id?: string;
+  progress: number;
+  error_message?: string;
+  retry_count: number;
+  estimated_completion: string; // 예상 완료 시간
+  created_at: string;
+  updated_at: string;
+}
+
+interface ReadingRecord {
+  id: string;
+  user_id: string;
+  session_id?: string;
+  reading_type: 'single' | 'three-card' | 'relationship' | 'celtic-cross';
+  question: string;
+  selected_cards: Card[];
+  ai_interpretation: string;
+  reading_language: string;
+  deck_used: string;
+  is_premium: boolean;
+  gems_spent: number;
+  user_rating?: number;
+  is_favorite: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ReadingHistory {
+  readings: ReadingRecord[];
+  total_count: number;
+  page: number;
+  has_next: boolean;
+}
+
 interface UserPreferences {
   language: string;
   region: string;
@@ -225,9 +375,87 @@ interface LanguageOption {
 }
 ```
 
-#### **2-3일차: 프론트엔드 + 백엔드 구현**
+#### **2-3일차: 프론트엔드 + 백엔드 구현 (비동기 AI 리딩 시스템)**
 ```typescript
-// 프론트엔드 (React Native)
+// 프론트엔드 (React Native) - 비동기 AI 리딩 처리
+const AsyncReadingService = () => {
+  const startAsyncReading = async (readingData: ReadingSessionData) => {
+    try {
+      // 1. 보석 사전 예약 (실제 차감 X)
+      const reservation = await asyncReadingAPI.reserveGems(
+        currentUser.id, 
+        readingData.gemCost, 
+        readingData.sessionId
+      );
+      
+      // 2. AI 리딩 비동기 시작
+      const session = await asyncReadingAPI.startReading({
+        ...readingData,
+        reservationId: reservation.id
+      });
+      
+      // 3. 사용자에게 즉시 피드백
+      showToast({
+        title: '🔮 AI 리딩 시작됨',
+        message: `약 ${session.estimated_completion}분 후 완료 예정\n앱을 종료해도 푸시 알림으로 알려드려요!`,
+        type: 'info',
+        duration: 5000
+      });
+      
+      // 4. 진행 상태 주기적 체크 (앱이 열려있을 때만)
+      const statusChecker = setInterval(async () => {
+        const updatedSession = await asyncReadingAPI.checkReadingStatus(session.id);
+        
+        if (updatedSession.status === 'completed') {
+          clearInterval(statusChecker);
+          handleReadingCompleted(updatedSession);
+        } else if (updatedSession.status === 'failed') {
+          clearInterval(statusChecker);
+          handleReadingFailed(updatedSession);
+        } else {
+          updateProgress(updatedSession.progress);
+        }
+      }, 10000); // 10초마다 체크
+      
+      return session;
+    } catch (error) {
+      console.error('리딩 시작 실패:', error);
+      showErrorAlert('리딩 시작에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+  
+  const handleReadingCompleted = async (session: ReadingSession) => {
+    // 완료된 리딩 데이터 가져오기
+    const completedReading = await readingAPI.getReadingById(session.id);
+    
+    // 히스토리에 자동 저장
+    await autoSaveReading(completedReading);
+    
+    // 사용자에게 완료 알림
+    showSuccessAlert({
+      title: '🎉 리딩 완료!',
+      message: '타로 해석이 완성되었습니다.',
+      buttonText: '결과 보기',
+      onPress: () => navigateToReadingResult(completedReading.id)
+    });
+  };
+  
+  const handleReadingFailed = async (session: ReadingSession) => {
+    // 자동 환불 처리
+    if (session.gems_reserved > 0) {
+      await asyncReadingAPI.refundGems(session.reservationId, 'ai_processing_failed');
+    }
+    
+    showErrorAlert({
+      title: '😔 리딩 처리 실패',
+      message: '기술적 문제로 리딩이 실패했습니다.\n보석이 자동으로 환불되었습니다.',
+      buttonText: '다시 시도',
+      onPress: () => asyncReadingAPI.retryFailedReading(session.id)
+    });
+  };
+};
+
+// 로그인 화면
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -244,14 +472,161 @@ const LoginScreen = () => {
 ```
 
 ```typescript
-// 백엔드 (Supabase Edge Function)
-export default async function handler(req: Request) {
-  const { email, password } = await req.json();
+// 백엔드 (Supabase Edge Function) - 비동기 AI 리딩 처리
+export default async function asyncReadingHandler(req: Request) {
+  const { action, sessionData } = await req.json();
   
-  const { data, error } = await supabase.auth.admin
-    .createUser({ email, password });
+  try {
+    switch (action) {
+      case 'start_reading':
+        return await startAsyncReading(sessionData);
+      case 'check_status':
+        return await checkReadingStatus(sessionData.sessionId);
+      case 'process_ai_job':
+        return await processAIJob(sessionData);
+      default:
+        throw new Error('Invalid action');
+    }
+  } catch (error) {
+    console.error('Async reading error:', error);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: error.message 
+    }), { status: 500 });
+  }
+}
+
+async function startAsyncReading(sessionData: any) {
+  // 1. 보석 예약 (실제 차감하지 않음)
+  const reservation = await reserveGems(
+    sessionData.user_id, 
+    sessionData.gem_cost,
+    sessionData.session_id
+  );
+  
+  // 2. 세션 상태를 'ai_processing'으로 업데이트
+  const { data: session } = await supabase
+    .from('reading_sessions')
+    .update({
+      status: 'ai_processing',
+      gems_reserved: sessionData.gem_cost,
+      ai_started_at: new Date().toISOString(),
+      progress: 10
+    })
+    .eq('id', sessionData.session_id)
+    .select()
+    .single();
+  
+  // 3. AI 작업을 백그라운드 큐에 추가
+  const aiJobId = await addToAIQueue({
+    sessionId: sessionData.session_id,
+    userId: sessionData.user_id,
+    question: sessionData.question,
+    selectedCards: sessionData.selected_cards,
+    readingType: sessionData.reading_type,
+    language: sessionData.language
+  });
+  
+  // 4. AI 작업 ID 저장
+  await supabase
+    .from('reading_sessions')
+    .update({ ai_job_id: aiJobId })
+    .eq('id', sessionData.session_id);
+  
+  return new Response(JSON.stringify({ 
+    success: true, 
+    session,
+    estimated_completion: '2-3' // 2-3분 예상
+  }));
+}
+
+async function processAIJob(jobData: any) {
+  const { sessionId, userId, question, selectedCards, readingType, language } = jobData;
+  
+  try {
+    // 진행률 업데이트 (30%)
+    await updateProgress(sessionId, 30);
     
-  return new Response(JSON.stringify({ data, error }));
+    // AI 해석 생성 (xAI API 호출)
+    const aiInterpretation = await generateAIReading({
+      question,
+      selectedCards,
+      readingType,
+      language
+    });
+    
+    // 진행률 업데이트 (70%)
+    await updateProgress(sessionId, 70);
+    
+    // TTS 생성 (선택적)
+    const ttsUrl = await generateTTS(aiInterpretation, language);
+    
+    // 진행률 업데이트 (90%)
+    await updateProgress(sessionId, 90);
+    
+    // 히스토리에 저장
+    const savedReading = await saveToHistory({
+      sessionId,
+      userId,
+      question,
+      selectedCards,
+      aiInterpretation,
+      ttsUrl,
+      language
+    });
+    
+    // 보석 실제 차감
+    await processGemPayment(sessionId);
+    
+    // 세션 완료 처리
+    await supabase
+      .from('reading_sessions')
+      .update({
+        status: 'completed',
+        progress: 100,
+        ai_completed_at: new Date().toISOString()
+      })
+      .eq('id', sessionId);
+    
+    // 푸시 알림 발송
+    await sendPushNotification(userId, {
+      type: 'reading_completed',
+      title: '🎉 타로 리딩 완료!',
+      message: '당신의 타로 해석이 준비되었습니다.',
+      data: { readingId: savedReading.id, sessionId }
+    });
+    
+    return { success: true, readingId: savedReading.id };
+    
+  } catch (error) {
+    // 실패 처리
+    await handleAIJobFailure(sessionId, error.message);
+    throw error;
+  }
+}
+
+async function handleAIJobFailure(sessionId: string, errorMessage: string) {
+  // 세션을 실패 상태로 업데이트
+  await supabase
+    .from('reading_sessions')
+    .update({
+      status: 'failed',
+      error_message: errorMessage,
+      retry_count: supabase.raw('retry_count + 1')
+    })
+    .eq('id', sessionId);
+  
+  // 보석 자동 환불
+  await processRefund(sessionId, 'ai_processing_failed');
+  
+  // 실패 알림 발송
+  const session = await getSession(sessionId);
+  await sendPushNotification(session.user_id, {
+    type: 'reading_failed',
+    title: '😔 리딩 처리 실패',
+    message: '기술적 문제로 리딩이 실패했습니다. 보석이 환불되었습니다.',
+    data: { sessionId, canRetry: session.retry_count < 3 }
+  });
 }
 ```
 
@@ -271,7 +646,16 @@ export default async function handler(req: Request) {
 ├── ReadingDisplay.tsx       // 결과 표시
 ├── TTSPlayer.tsx            // 📖 TTS 리딩 (다국어)
 ├── PremiumReading.tsx       // 🤖 구매형 AI 리딩
-└── LanguageSwitch.tsx       // 실시간 언어 전환
+├── LanguageSwitch.tsx       // 실시간 언어 전환
+└── ReadingHistory.tsx       // 📚 리딩 히스토리
+
+/components/history/
+├── HistoryList.tsx          // 히스토리 목록
+├── HistoryCard.tsx          // 개별 히스토리 카드
+├── HistoryFilter.tsx        // 히스토리 필터링
+├── FavoriteReadings.tsx     // 즐겨찾기 리딩
+├── ShareReading.tsx         // 리딩 공유 기능
+└── ReadingStats.tsx         // 리딩 통계
 
 // 🌍 Multilingual Content
 /content/
@@ -294,9 +678,10 @@ export default async function handler(req: Request) {
 ├── user-decks-table.sql     // 사용자 보유 덱
 ├── cards-table.sql          // 개별 카드 정보
 ├── card-translations-table.sql // 카드 번역 테이블
-├── consultations-table.sql  // 상담 세션
-├── readings-table.sql       // 리딩 결과
-└── unlock-progress-table.sql // 덱 해금 진도
+├── reading-history-table.sql   // 📚 리딩 히스토리 (Week 1에서 이동)
+├── reading-sessions-table.sql  // 📖 리딩 세션
+├── reading-shares-table.sql    // 📤 리딩 공유 링크
+└── unlock-progress-table.sql   // 덱 해금 진도
 
 // 🌐 API
 /api/cards/
@@ -306,15 +691,39 @@ export default async function handler(req: Request) {
 ├── generate-reading.ts      // AI 해석 생성 (다국어)
 ├── text-to-speech.ts        // TTS 생성 (다국어)
 ├── translate-reading.ts     // 리딩 결과 번역
-└── premium-reading.ts       // 프리미엄 리딩
+├── premium-reading.ts       // 프리미엄 리딩
+└── save-reading.ts          // 📚 리딩 자동 저장
+
+/api/async-reading/
+├── start-reading.ts         // 🔄 비동기 리딩 시작
+├── check-status.ts          // 📊 리딩 진행 상태 확인
+├── process-ai-job.ts        // 🤖 AI 작업 처리 (백그라운드)
+├── reserve-gems.ts          // 💎 보석 사전 예약
+├── process-payment.ts       // 💳 결제 처리
+├── refund-gems.ts           // 💰 자동 환불
+└── retry-reading.ts         // 🔄 실패한 리딩 재시도
+
+/api/notifications/
+├── register-device.ts       // 📱 디바이스 토큰 등록
+├── send-push.ts             // 📤 푸시 알림 발송
+├── notification-history.ts  // 📋 알림 기록 조회
+└── update-preferences.ts    // ⚙️ 알림 설정 업데이트
+
+/api/history/
+├── get-history.ts           // 사용자 히스토리 조회
+├── get-reading.ts           // 개별 리딩 조회
+├── update-reading.ts        // 리딩 업데이트 (평점, 즐겨찾기)
+├── delete-reading.ts        // 리딩 삭제
+├── share-reading.ts         // 리딩 공유 링크 생성
+└── reading-stats.ts         // 사용자 리딩 통계
 ```
 
 #### **상세 구현 스케줄**
 **1일차**: 카드덱 데이터베이스 + 다국어 카드 번역 시스템 구축
 **2일차**: 덱 해금 시스템 + 언어별 UI 텍스트 적용
-**3일차**: 💎 보석 기반 덱 구매 시스템 (통화별 가격 설정)
-**4일차**: 다국어 AI 리딩 생성 + 언어별 TTS 음성 변환
-**5일차**: 언어 전환 기능 + 실시간 번역 시스템 완성
+**3일차**: 💎 보석 예약/환불 시스템 + 📚 리딩 자동 저장 시스템
+**4일차**: 🔄 비동기 AI 리딩 처리 + 📱 푸시 알림 시스템 구현
+**5일차**: 리딩 공유 기능 + 즐겨찾기 + 백그라운드 작업 큐 완성
 
 #### **카드덱 데이터 구조 (다국어 지원)**
 ```sql
@@ -371,6 +780,17 @@ CREATE TABLE unlock_progress (
   target_progress INTEGER,
   completed BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (user_id, unlock_type)
+);
+
+-- 📤 리딩 공유 링크 테이블
+CREATE TABLE reading_shares (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  reading_id UUID REFERENCES reading_history(id),
+  share_token TEXT UNIQUE NOT NULL,      -- 공유용 고유 토큰
+  is_public BOOLEAN DEFAULT TRUE,        -- 공개 여부
+  expires_at TIMESTAMP,                  -- 만료 일시 (NULL이면 무기한)
+  view_count INTEGER DEFAULT 0,          -- 조회 수
+  created_at TIMESTAMP DEFAULT NOW()
 );
 ```
 
@@ -589,6 +1009,8 @@ Co-authored-by: Backend-Dev <backend@team.com>"
 - **AI 서비스**: 다국어 기본 리딩 + 다국어 TTS + 프리미엄 리딩
 - **결제**: 💎 보석 인앱구매, 영수증 검증, 통화별 가격 설정
 - **다국어**: 10개 언어 완전 지원 (UI + 카드 + AI 해석)
+- **📚 히스토리**: 자동 저장, 즐겨찾기, 평점, 공유, 통계 기능
+- **🔄 비동기 처리**: AI 리딩 백그라운드 처리, 푸시 알림, 자동 환불 시스템
 
 ### **기술 품질**
 - **테스트 커버리지**: 90%+ (결제 시스템 중요)
@@ -618,6 +1040,7 @@ Co-authored-by: Backend-Dev <backend@team.com>"
 - 🔒 **보안성 최우선** (결제 정보 보호)
 - 📱 **사용자 친화적** (직관적 UI/UX)
 - 🌍 **글로벌 진출 준비** (10개 언어 완벽 지원)
+- 🔄 **비동기 AI 처리** (대기시간 없는 UX + 보석 안전 보장)
 
 ---
 
